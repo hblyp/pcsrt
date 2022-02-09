@@ -16,7 +16,7 @@ pub fn get_irradiance<'a>(
     in_shadow: bool,
 ) -> VoxelIrradiance<'a> {
     let solar_altitude = sun_position.altitude;
-    let solar_azimuth = sun_position.altitude;
+    let solar_azimuth = sun_position.azimuth;
     let elevation = input_params.centroid_elev;
     let solar_distance_variation_correction = solar_distance_variation_correction(no_of_day);
 
