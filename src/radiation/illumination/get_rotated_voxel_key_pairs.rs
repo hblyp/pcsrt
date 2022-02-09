@@ -50,7 +50,7 @@ pub fn get_rotated_voxel_key_pair_iterator<'a>(
     voxel_grid: &'a VoxelGrid<Voxel>,
     sun_position: &'a SunPosition,
 ) -> impl Iterator<Item = RotatedVoxelKeyPair<'a>> + 'a {
-    let rot_voxel_key_par_iter = voxel_grid.iter().map(|(reference_key, voxel)| {
+    let rot_voxel_key_pair_iter = voxel_grid.iter().map(|(reference_key, voxel)| {
         let reference_key = Key {
             x: reference_key.0,
             y: reference_key.1,
@@ -79,5 +79,5 @@ pub fn get_rotated_voxel_key_pair_iterator<'a>(
 
         rot_voxel_key_pair
     });
-    rot_voxel_key_par_iter
+    rot_voxel_key_pair_iter
 }
