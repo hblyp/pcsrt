@@ -60,7 +60,7 @@ fn get_voxel_size(reader: &Reader, block_size_in_voxels: i64) -> Result<f64, Box
         voxel_extent.update(voxel_tuple);
     }
 
-    let density = get_cloud_density(&reader, &voxel_extent, block_size_in_voxels as i64, 1.)?;
+    let density = get_cloud_density(reader, &voxel_extent, block_size_in_voxels as i64, 1.)?;
     let desired_points_in_voxel = 3.;
     let voxel_size =
         (meter_voxel_size / density.average * desired_points_in_voxel * 100.).round() / 100.;

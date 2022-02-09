@@ -27,7 +27,7 @@ SOFTWARE. */
 #[allow(unknown_lints)]
 #[allow(clippy::all)]
 pub fn plane_from_points(points: &Vec<Point>) -> NormalVector {
-    let points: &Vec<Vector3<f64>> = &points.iter().map(|point| point.to_na_vec()).collect();
+    let points: &Vec<Vector3<f64>> = &points.iter().map(|point| point.as_na_vec()).collect();
     let n = points.len();
 
     if n < 3 {

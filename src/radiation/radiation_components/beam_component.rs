@@ -40,7 +40,7 @@ pub fn get_beam_irradiance(
             .exp()
     };
 
-    #[allow(clippy::clippy::let_and_return)]
+    #[allow(clippy::let_and_return)]
     let beam_radiation = SOLAR_CONSTANT
         * solar_distance_variation_correction
         * incline_angle.sin()

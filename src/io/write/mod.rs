@@ -35,16 +35,12 @@ impl Writer {
         }
     }
     pub fn write(&mut self, voxel_grid: &VoxelGrid<Voxel>) -> Result<(), Box<dyn Error>> {
-        // let mut  count = 0;
         for (_, voxel) in voxel_grid.iter() {
-            // count += 1;
-            // if count < 10 {
             let irradiation = voxel.irradiation.read().unwrap();
 
             for point in voxel.points.iter() {
-                self.write_point(&point, &irradiation).unwrap();
+                self.write_point(point, &irradiation).unwrap();
             }
-            // }
         }
         Ok(())
     }

@@ -1,7 +1,6 @@
 use crate::{io::Reader, voxel::IntoVoxelKey};
 
 use las::{Point, Read};
-use std::error::Error;
 
 use super::Extent;
 
@@ -11,7 +10,7 @@ pub fn get_block_iterator<'a>(
     overlap_size: i64,
     block_size: i64,
     voxel_size: f64,
-) -> Result<impl Iterator<Item = Block> + 'a, Box<dyn Error>> {
+) -> impl Iterator<Item = Block> + 'a {
     let (x_length, y_length, _) = extent.get_dimensions();
     let x_blocks = (x_length as f64 / block_size as f64).ceil() as i64;
     let y_blocks = (y_length as f64 / block_size as f64).ceil() as i64;
@@ -36,7 +35,7 @@ pub fn get_block_iterator<'a>(
         })
     });
 
-    Ok(block_iterator)
+    block_iterator
 }
 
 pub struct Block {

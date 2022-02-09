@@ -43,7 +43,7 @@ pub struct Point {
 }
 
 impl Point {
-    pub fn to_na_vec(&self) -> Vector3<f64> {
+    pub fn as_na_vec(&self) -> Vector3<f64> {
         Vector3::from([self.x, self.y, self.z])
     }
 }
@@ -73,7 +73,7 @@ impl NormalVector {
             z: 0.,
         }
     }
-    pub fn to_na_vec(&self) -> Vector3<f64> {
+    pub fn as_na_vec(&self) -> Vector3<f64> {
         Vector3::from([self.x, self.y, self.z])
     }
     pub fn from_na_vec(na_vec: &Vector3<f64>) -> Self {
@@ -84,7 +84,7 @@ impl NormalVector {
         }
     }
     pub fn angle(&self, vec: &Vector3<f64>) -> f64 {
-        self.to_na_vec().angle(vec)
+        self.as_na_vec().angle(vec)
     }
 }
 
@@ -106,7 +106,7 @@ pub struct Key {
 }
 
 impl Key {
-    pub fn to_tuple(&self) -> (i64, i64, i64) {
+    pub fn as_tuple(&self) -> (i64, i64, i64) {
         (self.x, self.y, self.z)
     }
 }

@@ -1,20 +1,23 @@
 use std::f64::consts::PI;
 
-use crate::voxel::{Key, Voxel};
+use crate::cli::InputParams;
+use crate::radiation::sun_position::SunPosition;
+use crate::voxel::Voxel;
 
 use super::VoxelIrradiance;
 use super::{get_beam_irradiance, get_diffuse_irradiance};
 use nalgebra::Vector3;
 
-pub fn get_global_irradiance(
-    voxel: &Voxel,
-    elevation: f64,
-    solar_azimuth: f64,
-    solar_altitude: f64,
-    linke_turbidity_factor: f64,
+pub fn get_irradiance<'a>(
+    input_params: &InputParams,
+    voxel: &'a Voxel,
+    sun_position: &SunPosition,
     no_of_day: f64,
     in_shadow: bool,
-) -> VoxelIrradiance {
+) -> VoxelIrradiance<'a> {
+    let solar_altitude = sun_position.altitude;
+    let solar_azimuth = sun_position.altitude;
+    let elevation = input_params.centroid_elev;
     let solar_distance_variation_correction = solar_distance_variation_correction(no_of_day);
 
     let zenith_angle = (PI / 2.) - solar_altitude;
@@ -35,7 +38,7 @@ pub fn get_global_irradiance(
             solar_altitude,
             incline_angle,
             solar_distance_variation_correction,
-            linke_turbidity_factor,
+            input_params.linke_turbidity_factor,
         ))
     } else {
         None
@@ -44,24 +47,20 @@ pub fn get_global_irradiance(
     let diffuse_component = get_diffuse_irradiance(
         solar_altitude,
         incline_angle,
-        voxel.normal_vector.to_na_vec(),
+        voxel.normal_vector.as_na_vec(),
         solar_distance_variation_correction,
-        linke_turbidity_factor,
+        input_params.linke_turbidity_factor,
         beam_component,
     );
 
-    let beam_component = beam_component.unwrap_or(0.);
+    let step_coef = input_params.step_mins / 60.;
+    let beam_component = beam_component.unwrap_or(0.) * step_coef;
+    let diffuse_component = diffuse_component * step_coef;
 
     let global_irradiance = beam_component + diffuse_component;
 
-    let voxel_key = Key {
-        x: voxel.x,
-        y: voxel.y,
-        z: voxel.z,
-    };
-
     VoxelIrradiance {
-        voxel_key,
+        voxel,
         global_irradiance,
         beam_component,
         diffuse_component,

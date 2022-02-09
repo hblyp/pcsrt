@@ -6,7 +6,7 @@ use crate::{
     cli::read_input_params,
     common::{get_block_iterator, get_cloud_params},
     io::{Reader, Writer},
-    radiation::{calculate_solar_radiation, calculate_solar_radiation2},
+    radiation::calculate_solar_radiation,
     voxel::{build_voxel_grid, calculate_normals, Voxel, VoxelGrid},
 };
 
@@ -38,7 +38,7 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
         input_params.block_overlap_in_voxels as i64,
         input_params.block_size_in_voxels as i64,
         cloud_params.voxel_size,
-    )?;
+    );
 
     let (x_length, y_length, _) = cloud_params.voxel_extent.get_dimensions();
     let block_count = (x_length as f64 / input_params.block_size_in_voxels as f64).ceil() as i64
@@ -46,14 +46,17 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
 
     let mut block_num = 0;
     for block in block_iterator {
-        block_num = block_num + 1;
+        block_num += 1;
+
         info!("Processing cloud block {}/{}", block_num, block_count);
         let mut voxel_grid: VoxelGrid<Voxel> =
             build_voxel_grid(&block.points, cloud_params.voxel_size)?;
+
         info!("Calculating normals for voxels");
         calculate_normals(&mut voxel_grid)?;
+
         info!("Calculating solar radiation");
-        calculate_solar_radiation2(&mut voxel_grid, &input_params);
+        calculate_solar_radiation(&voxel_grid, &input_params);
 
         let voxel_grid: HashMap<_, _> = voxel_grid
             .into_iter()

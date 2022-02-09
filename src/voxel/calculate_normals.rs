@@ -21,7 +21,7 @@ pub fn calculate_normals(voxel_grid: &mut VoxelGrid<Voxel>) -> Result<(), Box<dy
         })
         .collect::<Vec<(Key, NormalVector)>>();
     normals.into_iter().for_each(|(key, normal_vector)| {
-        let voxel = voxel_grid.get_mut(&key.to_tuple()).unwrap();
+        let voxel = voxel_grid.get_mut(&key.as_tuple()).unwrap();
         voxel.normal_vector = normal_vector;
     });
     Ok(())
