@@ -6,7 +6,7 @@ use crate::{
     cli::read_input_params,
     common::{get_block_iterator, get_cloud_params},
     io::{Reader, Writer},
-    radiation::calculate_solar_radiation,
+    radiation::{calculate_solar_radiation, calculate_solar_radiation2},
     voxel::{build_voxel_grid, calculate_normals, Voxel, VoxelGrid},
 };
 
@@ -53,7 +53,7 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
         info!("Calculating normals for voxels");
         calculate_normals(&mut voxel_grid)?;
         info!("Calculating solar radiation");
-        calculate_solar_radiation(&mut voxel_grid, &input_params);
+        calculate_solar_radiation2(&mut voxel_grid, &input_params);
 
         let voxel_grid: HashMap<_, _> = voxel_grid
             .into_iter()

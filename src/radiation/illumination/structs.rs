@@ -3,6 +3,7 @@ use std::vec::IntoIter;
 
 use crate::voxel::Key;
 
+#[derive(Copy, Clone)]
 pub struct RotatedVoxelKeyPair {
     pub reference_key: Key,
     pub rotated_key: Key,
