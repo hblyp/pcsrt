@@ -5,7 +5,7 @@ use std::error::Error;
 use super::{GetCoords, IntoVoxel, IntoVoxelKey, Point, PushPoint, VoxelGrid};
 
 pub fn build_voxel_grid<V: PushPoint>(
-    points: &[LasPoint],
+    points: Vec<LasPoint>,
     voxel_size: f64,
 ) -> Result<VoxelGrid<V>, Box<dyn Error>>
 where
@@ -18,6 +18,7 @@ where
             y: input_point.y(),
             z: input_point.z(),
         };
+
         let key = point.to_key(voxel_size);
 
         if let Some(voxel) = voxel_grid.get_mut(&key) {

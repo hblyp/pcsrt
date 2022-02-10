@@ -22,10 +22,11 @@ pub struct PlyFileWriter {
 impl WriteOutput for PlyFileWriter {
     fn write_point(
         &mut self,
-        point: &Point,
+        point: Point,
         irradiation: &Irradiation,
     ) -> Result<(), Box<dyn Error>> {
         let mut ply_point = DefaultElement::new();
+
         ply_point.insert("x".to_string(), Property::Double(point.x));
         ply_point.insert("y".to_string(), Property::Double(point.y));
         ply_point.insert("z".to_string(), Property::Double(point.z));

@@ -28,8 +28,7 @@ pub fn get_cloud_params(
 
     let mut point_count = 0;
 
-    for wrapped_point in reader.to_point_reader().points() {
-        let point = wrapped_point.unwrap();
+    for point in reader.to_point_reader().points().flatten() {
         point_count += 1;
         let point_tuple = (point.x, point.y, point.z);
         let voxel_tuple = point.to_key(voxel_size);
@@ -37,11 +36,19 @@ pub fn get_cloud_params(
         cloud_extent.update(point_tuple);
     }
 
+    let translation = (
+        cloud_extent.min.0.ceil(),
+        cloud_extent.min.1.ceil(),
+        cloud_extent.min.2.ceil(),
+    );
+    println!("v {:?} \nc{:?}\nt {:?}", voxel_extent, cloud_extent, translation);
+
     let cloud_params = CloudParams {
         voxel_size,
         point_count,
         voxel_extent,
         cloud_extent,
+        translation,
     };
 
     Ok(cloud_params)
@@ -60,6 +67,7 @@ fn get_voxel_size(reader: &Reader, block_size_in_voxels: i64) -> Result<f64, Box
         voxel_extent.update(voxel_tuple);
     }
 
+
     let density = get_cloud_density(reader, &voxel_extent, block_size_in_voxels as i64, 1.)?;
     let desired_points_in_voxel = 3.;
     let voxel_size =
@@ -72,4 +80,5 @@ pub struct CloudParams {
     pub point_count: usize,
     pub voxel_extent: Extent<i64>,
     pub cloud_extent: Extent<f64>,
+    pub translation: (f64, f64, f64),
 }

@@ -1,7 +1,33 @@
 use las::Point as LasPoint;
 use std::sync::RwLock;
 
-use crate::voxel::{GetCoords, IntoVoxel, IntoVoxelKey, Irradiation, NormalVector, Point, Voxel};
+use crate::voxel::{
+    GetCoords, IntoVoxel, IntoVoxelKey, Irradiation, NormalVector, Point, TranslatePoint,
+    TrimDecimals, Voxel,
+};
+
+impl TranslatePoint for LasPoint {
+    fn translate(&mut self, translation: &(f64, f64, f64)) {
+        self.x = self.x - translation.0;
+        self.y = self.y - translation.1;
+        self.z = self.z - translation.2;
+    }
+
+    fn translate_rev(&mut self, translation: &(f64, f64, f64)) {
+        self.x = self.x + translation.0;
+        self.y = self.y + translation.1;
+        self.z = self.z + translation.2;
+    }
+}
+
+impl TrimDecimals for LasPoint {
+    fn trim_decimals(&mut self, n: i32) {
+        let coef = 10f64.powi(n);
+        self.x = (self.x * coef).round() / coef;
+        self.y = (self.y * coef).round() / coef;
+        self.z = (self.z * coef).round() / coef;
+    }
+}
 
 impl IntoVoxelKey for LasPoint {
     fn to_key(&self, voxel_size: f64) -> (i64, i64, i64) {

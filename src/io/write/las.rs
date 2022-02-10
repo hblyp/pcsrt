@@ -7,7 +7,7 @@ use las::{
 use crate::{
     cli::FileType,
     common::CloudParams,
-    voxel::{Irradiation, Point},
+    voxel::{Irradiation, Point, TranslatePoint},
 };
 
 use super::WriteOutput;
@@ -20,7 +20,7 @@ pub struct LasFileWriter {
 impl WriteOutput for LasFileWriter {
     fn write_point(
         &mut self,
-        point: &Point,
+        point: Point,
         irradiation: &Irradiation,
     ) -> Result<(), Box<dyn Error>> {
         let extra_bytes = vec![
@@ -37,6 +37,7 @@ impl WriteOutput for LasFileWriter {
             extra_bytes,
             ..Default::default()
         };
+
         self.writer.write(point)?;
         Ok(())
     }
@@ -73,7 +74,7 @@ impl LasFileWriter {
         insolation_times_vlr.data = fields_to_vlr(&fields);
         builder.evlrs.push(insolation_times_vlr);
 
-        let (min_x, min_y, min_z) = cloud_params.cloud_extent.min;
+        let (min_x, min_y, min_z) = cloud_params.translation;
 
         builder.transforms = Vector {
             x: Transform {

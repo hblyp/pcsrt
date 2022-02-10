@@ -12,18 +12,20 @@ pub fn get_cloud_density(
     block_size: i64,
     voxel_size: f64,
 ) -> Result<Density, Box<dyn Error>> {
-    let block_iterator = get_block_iterator(reader, extent, 0, block_size, voxel_size);
+    let zero_translate = (0., 0., 0.);
+    let block_iterator =
+        get_block_iterator(reader, extent, &zero_translate, 0, block_size, voxel_size);
 
     let mut max_density = 0;
     let mut min_density = usize::MAX;
     let mut point_count: usize = 0;
     let mut voxel_count: usize = 0;
 
-    for block in block_iterator {
+    for (_block, points) in block_iterator {
         let mut counter: HashMap<(i64, i64, i64), usize, BuildHasherDefault<XxHash64>> =
             HashMap::default();
 
-        for point in block.points {
+        for point in points {
             point_count += 1;
             let key = point.to_key(voxel_size);
             if let Some(count) = counter.get_mut(&key) {

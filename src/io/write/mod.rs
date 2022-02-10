@@ -3,7 +3,7 @@ use std::error::Error;
 use crate::{
     cli::FileType,
     common::CloudParams,
-    voxel::{Irradiation, Point, Voxel, VoxelGrid},
+    voxel::{Irradiation, Point, TranslatePoint, Voxel, VoxelGrid},
 };
 
 use self::{las::LasFileWriter, ply::PlyFileWriter};
@@ -34,11 +34,16 @@ impl Writer {
             }
         }
     }
-    pub fn write(&mut self, mut voxel_grid: VoxelGrid<Voxel>) -> Result<(), Box<dyn Error>> {
+    pub fn write(
+        &mut self,
+        mut voxel_grid: VoxelGrid<Voxel>,
+        translation: &(f64, f64, f64),
+    ) -> Result<(), Box<dyn Error>> {
         for (_, voxel) in voxel_grid.drain() {
             let irradiation = voxel.irradiation.read().unwrap();
 
-            for point in voxel.points.iter() {
+            for mut point in voxel.points.into_iter() {
+                point.translate_rev(translation);
                 self.write_point(point, &irradiation).unwrap();
             }
         }
@@ -49,7 +54,7 @@ impl Writer {
 impl WriteOutput for Writer {
     fn write_point(
         &mut self,
-        point: &Point,
+        point: Point,
         irradiation: &Irradiation,
     ) -> Result<(), Box<dyn Error>> {
         self.writer.write_point(point, irradiation)
@@ -59,7 +64,7 @@ impl WriteOutput for Writer {
 pub trait WriteOutput {
     fn write_point(
         &mut self,
-        point: &Point,
+        point: Point,
         irradiation: &Irradiation,
     ) -> Result<(), Box<dyn Error>>;
 }

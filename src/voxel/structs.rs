@@ -14,6 +14,15 @@ pub trait IntoVoxelKey {
     fn to_key(&self, voxel_size: f64) -> (i64, i64, i64);
 }
 
+pub trait TranslatePoint {
+    fn translate(&mut self, translation: &(f64,f64,f64));
+    fn translate_rev(&mut self, translation: &(f64,f64,f64));
+}
+
+pub trait TrimDecimals {
+    fn trim_decimals(&mut self, n: i32);
+}
+
 pub trait PushPoint {
     fn push_point(&mut self, point: Point);
 }
@@ -47,6 +56,21 @@ pub struct Point {
 impl Point {
     pub fn as_na_vec(&self) -> Vector3<f64> {
         Vector3::from([self.x, self.y, self.z])
+    }
+}
+
+
+impl TranslatePoint for Point {
+    fn translate(&mut self, translation: &(f64, f64, f64)) {
+        self.x = self.x - translation.0;
+        self.y = self.y - translation.1;
+        self.z = self.z - translation.2;
+    }
+
+    fn translate_rev(&mut self, translation: &(f64, f64, f64)) {
+        self.x = self.x + translation.0;
+        self.y = self.y + translation.1;
+        self.z = self.z + translation.2;
     }
 }
 

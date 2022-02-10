@@ -1,4 +1,7 @@
-use crate::{io::Reader, voxel::IntoVoxelKey};
+use crate::{
+    io::Reader,
+    voxel::{IntoVoxelKey, TranslatePoint, TrimDecimals},
+};
 
 use las::{Point, Read};
 
@@ -7,10 +10,11 @@ use super::Extent;
 pub fn get_block_iterator<'a>(
     reader: &'a Reader,
     extent: &'a Extent<i64>,
+    translate: &'a (f64, f64, f64),
     overlap_size: i64,
     block_size: i64,
     voxel_size: f64,
-) -> impl Iterator<Item = Block> + 'a {
+) -> impl Iterator<Item = (Block, Vec<Point>)> + 'a {
     let (x_length, y_length, _) = extent.get_dimensions();
     let x_blocks = (x_length as f64 / block_size as f64).ceil() as i64;
     let y_blocks = (y_length as f64 / block_size as f64).ceil() as i64;
@@ -26,12 +30,20 @@ pub fn get_block_iterator<'a>(
 
             let mut reader = reader.to_point_reader();
 
-            let mut block = Block::new(i as usize, j as usize, bbox, overlap_size, voxel_size);
+            let block = Block::new(i as usize, j as usize, bbox, overlap_size);
 
-            for point in reader.points().flatten() {
-                block.push_point(point);
+            let mut block_points = vec![];
+
+            for mut point in reader.points().flatten() {
+                let (x, y, _) = point.to_key(voxel_size);
+                let is_in_block = x >= min_x && y >= min_y && x <= max_x && y <= max_y;
+                if is_in_block {
+                    point.translate(translate);
+                    point.trim_decimals(3);
+                    block_points.push(point);
+                }
             }
-            block
+            (block, block_points)
         })
     });
 
@@ -39,7 +51,6 @@ pub fn get_block_iterator<'a>(
 }
 
 pub struct Block {
-    voxel_size: f64,
     pub i: usize,
     pub j: usize,
     pub bbox: (i64, i64, i64, i64),
@@ -48,13 +59,7 @@ pub struct Block {
 }
 
 impl Block {
-    pub fn new(
-        i: usize,
-        j: usize,
-        bbox: (i64, i64, i64, i64),
-        overlap_size: i64,
-        voxel_size: f64,
-    ) -> Self {
+    pub fn new(i: usize, j: usize, bbox: (i64, i64, i64, i64), overlap_size: i64) -> Self {
         let mut overlap_bbox = None;
         if overlap_size > 0 {
             let (min_x, min_y, max_x, max_y) = bbox;
@@ -68,19 +73,9 @@ impl Block {
         Block {
             i,
             j,
-            voxel_size,
             bbox,
             overlap_bbox,
             points: vec![],
-        }
-    }
-
-    pub fn push_point(&mut self, point: Point) {
-        let (x, y, _) = point.to_key(self.voxel_size);
-        let (min_x, min_y, max_x, max_y) = self.overlap_bbox.unwrap_or(self.bbox);
-        let is_in_block = x >= min_x && y >= min_y && x <= max_x && y <= max_y;
-        if is_in_block {
-            self.points.push(point);
         }
     }
 

@@ -35,6 +35,7 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
     let block_iterator = get_block_iterator(
         &reader,
         &cloud_params.voxel_extent,
+        &cloud_params.translation,
         input_params.block_overlap_in_voxels as i64,
         input_params.block_size_in_voxels as i64,
         cloud_params.voxel_size,
@@ -45,12 +46,11 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
         * (y_length as f64 / input_params.block_size_in_voxels as f64).ceil() as i64;
 
     let mut block_num = 0;
-    for block in block_iterator {
+    for (block, points) in block_iterator {
         block_num += 1;
 
         info!("Processing cloud block {}/{}", block_num, block_count);
-        let mut voxel_grid: VoxelGrid<Voxel> =
-            build_voxel_grid(&block.points, cloud_params.voxel_size)?;
+        let mut voxel_grid: VoxelGrid<Voxel> = build_voxel_grid(points, cloud_params.voxel_size)?;
 
         info!("Calculating normals for voxels");
         calculate_normals(&mut voxel_grid)?;
@@ -71,7 +71,7 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
             input_params.output_file
         );
 
-        writer.write(voxel_grid)?;
+        writer.write(voxel_grid, &cloud_params.translation)?;
     }
 
     Ok(())
