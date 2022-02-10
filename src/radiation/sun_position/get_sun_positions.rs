@@ -1,8 +1,7 @@
 use std::f64::consts::PI;
 
-use crate::cli::InputParams;
-
 use super::calc_solar_position;
+use crate::cli::InputParams;
 use nalgebra::{Rotation, Rotation3};
 
 pub fn get_sun_positions(

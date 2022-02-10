@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error};
+use std::error::Error;
 
 use log::info;
 
@@ -58,7 +58,7 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
         info!("Calculating solar radiation");
         calculate_solar_radiation(&voxel_grid, &input_params);
 
-        let voxel_grid: HashMap<_, _> = voxel_grid
+        let voxel_grid: VoxelGrid<Voxel> = voxel_grid
             .into_iter()
             .filter(|(voxel_key, _)| {
                 let is_in_overlap = block.is_voxel_overlap(voxel_key);
@@ -71,7 +71,7 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
             input_params.output_file
         );
 
-        writer.write(&voxel_grid)?;
+        writer.write(voxel_grid)?;
     }
 
     Ok(())

@@ -11,7 +11,7 @@ pub fn build_voxel_grid<V: PushPoint>(
 where
     las::Point: super::structs::IntoVoxel<V>,
 {
-    let mut voxel_grid: VoxelGrid<V> = HashMap::new();
+    let mut voxel_grid: VoxelGrid<V> = HashMap::default();
     for input_point in points {
         let point = Point {
             x: input_point.x(),

@@ -1,4 +1,6 @@
-use std::{collections::HashMap, error::Error};
+use std::{collections::HashMap, error::Error, hash::BuildHasherDefault};
+
+use twox_hash::XxHash64;
 
 use crate::{io::Reader, voxel::IntoVoxelKey};
 
@@ -18,7 +20,8 @@ pub fn get_cloud_density(
     let mut voxel_count: usize = 0;
 
     for block in block_iterator {
-        let mut counter: HashMap<(i64, i64, i64), usize> = HashMap::new();
+        let mut counter: HashMap<(i64, i64, i64), usize, BuildHasherDefault<XxHash64>> =
+            HashMap::default();
 
         for point in block.points {
             point_count += 1;

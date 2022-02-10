@@ -1,6 +1,8 @@
 use nalgebra::Vector3;
 use std::collections::HashMap;
-use std::{collections::hash_map::RandomState, sync::RwLock};
+use std::hash::BuildHasherDefault;
+use std::sync::RwLock;
+use twox_hash::XxHash64;
 
 pub trait GetCoords {
     fn x(&self) -> f64;
@@ -96,7 +98,7 @@ pub struct Irradiation {
     pub illumination_count: i64,
 }
 
-pub type VoxelGrid<V> = HashMap<(i64, i64, i64), V, RandomState>;
+pub type VoxelGrid<V> = HashMap<(i64, i64, i64), V, BuildHasherDefault<XxHash64>>;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Key {

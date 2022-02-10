@@ -1,8 +1,5 @@
 use rayon::prelude::*;
-use std::{
-    collections::{hash_map::RandomState, HashMap},
-    error::Error,
-};
+use std::error::Error;
 
 use super::{plane_from_points::plane_from_points, Key, NormalVector, Point, Voxel, VoxelGrid};
 
@@ -28,7 +25,7 @@ pub fn calculate_normals(voxel_grid: &mut VoxelGrid<Voxel>) -> Result<(), Box<dy
 }
 
 fn search_for_adjacent_points(
-    voxel_grid: &HashMap<(i64, i64, i64), Voxel, RandomState>,
+    voxel_grid: &VoxelGrid<Voxel>,
     key: &Key,
     max_depth: u32,
     min_points: usize,
@@ -49,11 +46,7 @@ fn search_for_adjacent_points(
     points
 }
 
-fn round_point_search(
-    voxel_grid: &HashMap<(i64, i64, i64), Voxel, RandomState>,
-    key: &Key,
-    layers: Vec<i64>,
-) -> Vec<Point> {
+fn round_point_search(voxel_grid: &VoxelGrid<Voxel>, key: &Key, layers: Vec<i64>) -> Vec<Point> {
     let mut points = vec![];
     for x_search in layers.iter() {
         for y_search in layers.iter() {

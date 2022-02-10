@@ -1,12 +1,11 @@
 use chrono::prelude::*;
 use chrono::Utc;
 use rayon::prelude::*;
-use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
-use std::thread;
-use std::time::Duration;
+use std::hash::BuildHasherDefault;
+use twox_hash::XxHash64;
 
-use super::illumination::{get_rotated_voxel_key_pairs, get_rotated_voxel_key_pair_iterator};
+use super::illumination::get_rotated_voxel_key_pair_iterator;
 use super::radiation_components::get_irradiance;
 use super::radiation_components::VoxelIrradiance;
 use super::sun_position::get_sun_positions;
@@ -24,9 +23,12 @@ pub fn calculate_solar_radiation(voxel_grid: &VoxelGrid<Voxel>, input_params: &I
 
     sun_positions.par_iter().for_each(|sun_position| {
         let rot_voxel_key_pairs = get_rotated_voxel_key_pair_iterator(voxel_grid, sun_position);
-        
-        let mut voxel_illumination_map: HashMap<(i64, i64), (i64, &Voxel), RandomState> =
-            HashMap::new();
+
+        let mut voxel_illumination_map: HashMap<
+            (i64, i64),
+            (i64, &Voxel),
+            BuildHasherDefault<XxHash64>,
+        > = HashMap::default();
 
         for rot_voxel_key_pair in rot_voxel_key_pairs {
             let key = {
