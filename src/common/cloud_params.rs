@@ -41,7 +41,6 @@ pub fn get_cloud_params(
         cloud_extent.min.1.ceil(),
         cloud_extent.min.2.ceil(),
     );
-    println!("v {:?} \nc{:?}\nt {:?}", voxel_extent, cloud_extent, translation);
 
     let cloud_params = CloudParams {
         voxel_size,

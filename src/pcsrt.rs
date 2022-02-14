@@ -35,7 +35,6 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
     let block_iterator = get_block_iterator(
         &reader,
         &cloud_params.voxel_extent,
-        &cloud_params.translation,
         input_params.block_overlap_in_voxels as i64,
         input_params.block_size_in_voxels as i64,
         cloud_params.voxel_size,
@@ -50,7 +49,8 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
         block_num += 1;
 
         info!("Processing cloud block {}/{}", block_num, block_count);
-        let mut voxel_grid: VoxelGrid<Voxel> = build_voxel_grid(points, cloud_params.voxel_size)?;
+        let mut voxel_grid: VoxelGrid<Voxel> =
+            build_voxel_grid(points, cloud_params.voxel_size, &cloud_params.translation)?;
 
         info!("Calculating normals for voxels");
         calculate_normals(&mut voxel_grid)?;
@@ -61,7 +61,7 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
         let voxel_grid: VoxelGrid<Voxel> = voxel_grid
             .into_iter()
             .filter(|(voxel_key, _)| {
-                let is_in_overlap = block.is_voxel_overlap(voxel_key);
+                let is_in_overlap = block.is_voxel_in_overlap(voxel_key);
                 !is_in_overlap
             })
             .collect();

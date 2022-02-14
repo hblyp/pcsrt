@@ -7,7 +7,7 @@ use las::{
 use crate::{
     cli::FileType,
     common::CloudParams,
-    voxel::{Irradiation, Point, TranslatePoint},
+    voxel::{Irradiation, Point},
 };
 
 use super::WriteOutput;

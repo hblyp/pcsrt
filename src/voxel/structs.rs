@@ -15,8 +15,8 @@ pub trait IntoVoxelKey {
 }
 
 pub trait TranslatePoint {
-    fn translate(&mut self, translation: &(f64,f64,f64));
-    fn translate_rev(&mut self, translation: &(f64,f64,f64));
+    fn translate(&mut self, translation: &(f64, f64, f64));
+    fn translate_rev(&mut self, translation: &(f64, f64, f64));
 }
 
 pub trait TrimDecimals {
@@ -28,7 +28,7 @@ pub trait PushPoint {
 }
 
 pub trait IntoVoxel<V> {
-    fn to_voxel(&self, voxel_size: f64) -> V;
+    fn to_voxel(self, voxel_size: f64) -> V;
 }
 
 pub struct Voxel {
@@ -59,18 +59,49 @@ impl Point {
     }
 }
 
+impl IntoVoxel<Voxel> for Point {
+    fn to_voxel(self, voxel_size: f64) -> Voxel {
+        let key = self.to_key(voxel_size);
+        Voxel {
+            x: key.0,
+            y: key.1,
+            z: key.2,
+            irradiation: RwLock::new(Irradiation {
+                global_irradiance: 0.,
+                beam_component: 0.,
+                diffuse_component: 0.,
+                illumination_count: 0,
+            }),
+            normal_vector: NormalVector {
+                x: 0.,
+                y: 0.,
+                z: 0.,
+            },
+            points: vec![self],
+        }
+    }
+}
 
 impl TranslatePoint for Point {
     fn translate(&mut self, translation: &(f64, f64, f64)) {
-        self.x = self.x - translation.0;
-        self.y = self.y - translation.1;
-        self.z = self.z - translation.2;
+        self.x -= translation.0;
+        self.y -= translation.1;
+        self.z -= translation.2;
     }
 
     fn translate_rev(&mut self, translation: &(f64, f64, f64)) {
-        self.x = self.x + translation.0;
-        self.y = self.y + translation.1;
-        self.z = self.z + translation.2;
+        self.x += translation.0;
+        self.y += translation.1;
+        self.z += translation.2;
+    }
+}
+
+impl TrimDecimals for Point {
+    fn trim_decimals(&mut self, n: i32) {
+        let coef = 10f64.powi(n);
+        self.x = (self.x * coef).round() / coef;
+        self.y = (self.y * coef).round() / coef;
+        self.z = (self.z * coef).round() / coef;
     }
 }
 

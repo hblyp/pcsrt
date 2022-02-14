@@ -32,12 +32,10 @@ pub fn get_rotated_voxel_key_pair_iterator<'a>(
             z: (rotated_voxel_coords.z / (0.5)).round() as i64,
         };
 
-        let rot_voxel_key_pair = RotatedVoxelKeyPair {
+        RotatedVoxelKeyPair {
             reference: voxel,
             rotated_key,
-        };
-
-        rot_voxel_key_pair
+        }
     });
     rot_voxel_key_pair_iter
 }

@@ -12,9 +12,7 @@ pub fn get_cloud_density(
     block_size: i64,
     voxel_size: f64,
 ) -> Result<Density, Box<dyn Error>> {
-    let zero_translate = (0., 0., 0.);
-    let block_iterator =
-        get_block_iterator(reader, extent, &zero_translate, 0, block_size, voxel_size);
+    let block_iterator = get_block_iterator(reader, extent, 0, block_size, voxel_size);
 
     let mut max_density = 0;
     let mut min_density = usize::MAX;

@@ -1,7 +1,4 @@
-use crate::{
-    io::Reader,
-    voxel::{IntoVoxelKey, TranslatePoint, TrimDecimals},
-};
+use crate::{io::Reader, voxel::IntoVoxelKey};
 
 use las::{Point, Read};
 
@@ -10,7 +7,6 @@ use super::Extent;
 pub fn get_block_iterator<'a>(
     reader: &'a Reader,
     extent: &'a Extent<i64>,
-    translate: &'a (f64, f64, f64),
     overlap_size: i64,
     block_size: i64,
     voxel_size: f64,
@@ -19,7 +15,7 @@ pub fn get_block_iterator<'a>(
     let x_blocks = (x_length as f64 / block_size as f64).ceil() as i64;
     let y_blocks = (y_length as f64 / block_size as f64).ceil() as i64;
 
-    let block_iterator = (0..x_blocks).flat_map(move |i| {
+    (0..x_blocks).flat_map(move |i| {
         (0..y_blocks).map(move |j| {
             let min_x = extent.min.0 + (i * block_size);
             let min_y = extent.min.1 + (j * block_size);
@@ -34,20 +30,20 @@ pub fn get_block_iterator<'a>(
 
             let mut block_points = vec![];
 
-            for mut point in reader.points().flatten() {
+            println!("{:?}\n {:?}", block.bbox, block.overlap_bbox);
+
+            for point in reader.points().flatten() {
                 let (x, y, _) = point.to_key(voxel_size);
+                let (min_x, min_y, max_x, max_y) = block.overlap_bbox.unwrap_or(block.bbox);
                 let is_in_block = x >= min_x && y >= min_y && x <= max_x && y <= max_y;
+
                 if is_in_block {
-                    point.translate(translate);
-                    point.trim_decimals(3);
                     block_points.push(point);
                 }
             }
             (block, block_points)
         })
-    });
-
-    block_iterator
+    })
 }
 
 pub struct Block {
@@ -79,7 +75,7 @@ impl Block {
         }
     }
 
-    pub fn is_voxel_overlap(&self, voxel_key: &(i64, i64, i64)) -> bool {
+    pub fn is_voxel_in_overlap(&self, voxel_key: &(i64, i64, i64)) -> bool {
         if let Some((min_x_over, min_y_over, max_x_over, max_y_over)) = self.overlap_bbox {
             let (x, y, _z) = *voxel_key;
 
