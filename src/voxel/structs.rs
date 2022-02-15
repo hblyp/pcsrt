@@ -135,7 +135,7 @@ impl IntoVoxelKey for Point {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct NormalVector {
     pub x: f64,
     pub y: f64,
@@ -143,11 +143,18 @@ pub struct NormalVector {
 }
 
 impl NormalVector {
-    pub fn new() -> NormalVector {
+    pub fn _new() -> NormalVector {
         NormalVector {
             x: 0.,
             y: 0.,
             z: 0.,
+        }
+    }
+    pub fn upright() -> NormalVector {
+        NormalVector {
+            x: 0.,
+            y: 0.,
+            z: 1.,
         }
     }
     pub fn as_na_vec(&self) -> Vector3<f64> {

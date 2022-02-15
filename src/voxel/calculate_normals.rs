@@ -1,9 +1,12 @@
 use rayon::prelude::*;
-use std::error::Error;
+use std::{collections::HashSet, error::Error, hash::BuildHasherDefault};
+use twox_hash::XxHash64;
 
-use super::{plane_from_points::plane_from_points, Key, NormalVector, Point, Voxel, VoxelGrid};
+use super::{normal_from_points, Key, NormalVector, Point, Voxel, VoxelGrid};
 
-pub fn calculate_normals(voxel_grid: &mut VoxelGrid<Voxel>) -> Result<(), Box<dyn Error>> {
+pub fn calculate_normals(voxel_grid: &mut VoxelGrid<Voxel>) -> Result<i32, Box<dyn Error>> {
+    let mut failed_counter = 0;
+
     let normals = voxel_grid
         .par_iter()
         .map(|(key, _)| {
@@ -12,16 +15,32 @@ pub fn calculate_normals(voxel_grid: &mut VoxelGrid<Voxel>) -> Result<(), Box<dy
                 y: key.1,
                 z: key.2,
             };
-            let adjacent_points = search_for_adjacent_points(voxel_grid, &key, 20, 3);
-            let normal = plane_from_points(&adjacent_points);
-            (key, normal)
+
+            let adjacent_points = search_for_adjacent_points(voxel_grid, &key, 5, 3);
+
+            let normal = normal_from_points(&adjacent_points);
+
+            let failed_used_default = normal.is_none();
+
+            let normal = normal.unwrap_or_else(NormalVector::upright);
+
+            (key, normal, failed_used_default)
         })
-        .collect::<Vec<(Key, NormalVector)>>();
-    normals.into_iter().for_each(|(key, normal_vector)| {
-        let voxel = voxel_grid.get_mut(&key.as_tuple()).unwrap();
-        voxel.normal_vector = normal_vector;
-    });
-    Ok(())
+        .collect::<Vec<(Key, NormalVector, bool)>>();
+
+    normals
+        .into_iter()
+        .for_each(|(key, normal_vector, failed_used_default)| {
+            if failed_used_default {
+                failed_counter += 1;
+            }
+
+            let voxel = voxel_grid.get_mut(&key.as_tuple()).unwrap();
+
+            voxel.normal_vector = normal_vector;
+        });
+
+    Ok(failed_counter)
 }
 
 fn search_for_adjacent_points(
@@ -30,34 +49,50 @@ fn search_for_adjacent_points(
     max_depth: u32,
     min_points: usize,
 ) -> Vec<Point> {
-    let mut points = vec![];
+    let mut point_set: HashSet<(i64, i64, i64), BuildHasherDefault<XxHash64>> = HashSet::default();
 
     let mut layer: i64 = 1;
-    while max_depth >= layer as u32 && points.len() < min_points {
-        let layers = if layer == 1 {
-            vec![-layer, 0, layer]
-        } else {
-            vec![-layer, layer]
+    while max_depth >= layer as u32 && point_set.len() < min_points {
+        if layer == 1 {
+            if let Some(voxel) = voxel_grid.get(&key.as_tuple()) {
+                for Point { x, y, z, .. } in &voxel.points {
+                    point_set.insert((
+                        (x * 10000.) as i64,
+                        (y * 10000.) as i64,
+                        (z * 10000.) as i64,
+                    ));
+                }
+            }
         };
-        let points_around = round_point_search(voxel_grid, key, layers);
-        points.extend(&points_around);
-        layer += 1;
-    }
-    points
-}
 
-fn round_point_search(voxel_grid: &VoxelGrid<Voxel>, key: &Key, layers: Vec<i64>) -> Vec<Point> {
-    let mut points = vec![];
-    for x_search in layers.iter() {
-        for y_search in layers.iter() {
-            for z_search in layers.iter() {
-                if let Some(voxel) =
-                    voxel_grid.get(&(key.x + x_search, key.y + y_search, key.z + z_search))
-                {
-                    points.extend(&voxel.points);
+        for x in -layer..layer {
+            for y in -layer..layer {
+                for z in -layer..layer {
+                    if x.abs() == layer || y.abs() == layer || z.abs() == layer {
+                        if let Some(voxel) = voxel_grid.get(&(key.x + x, key.y + y, key.z + z)) {
+                            for Point { x, y, z, .. } in &voxel.points {
+                                point_set.insert((
+                                    (x * 1000.) as i64,
+                                    (y * 1000.) as i64,
+                                    (z * 1000.) as i64,
+                                ));
+                            }
+                        }
+                    }
                 }
             }
         }
+
+        layer += 1;
     }
-    points
+
+    point_set
+        .into_iter()
+        .map(|(x, y, z)| Point {
+            x: (x as f64 / 1000.),
+            y: (y as f64 / 1000.),
+            z: (z as f64 / 1000.),
+            overlap: false,
+        })
+        .collect()
 }

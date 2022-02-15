@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use log::info;
+use log::{info, warn};
 
 use crate::{
     cli::read_input_params,
@@ -50,7 +50,11 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
             build_voxel_grid(block.points, cloud_params.voxel_size)?;
 
         info!("Calculating normals for voxels");
-        calculate_normals(&mut voxel_grid)?;
+        let failed_normals = calculate_normals(&mut voxel_grid)?;
+
+        if failed_normals >= 0 {
+            warn!("Failed to construct normals on {} voxels.", failed_normals);
+        }
 
         info!("Calculating solar radiation");
         calculate_solar_radiation(&voxel_grid, &input_params);
