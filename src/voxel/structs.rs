@@ -14,9 +14,16 @@ pub trait IntoVoxelKey {
     fn to_key(&self, voxel_size: f64) -> (i64, i64, i64);
 }
 
+#[derive(Copy, Clone)]
+pub struct Translation {
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+}
+
 pub trait TranslatePoint {
-    fn translate(&mut self, translation: &(f64, f64, f64));
-    fn translate_rev(&mut self, translation: &(f64, f64, f64));
+    fn translate(&mut self, translation: &Translation);
+    fn translate_rev(&mut self, translation: &Translation);
 }
 
 pub trait TrimDecimals {
@@ -51,6 +58,7 @@ pub struct Point {
     pub x: f64,
     pub y: f64,
     pub z: f64,
+    pub overlap: bool,
 }
 
 impl Point {
@@ -82,17 +90,29 @@ impl IntoVoxel<Voxel> for Point {
     }
 }
 
+impl GetCoords for Point {
+    fn x(&self) -> f64 {
+        self.x
+    }
+    fn y(&self) -> f64 {
+        self.y
+    }
+    fn z(&self) -> f64 {
+        self.z
+    }
+}
+
 impl TranslatePoint for Point {
-    fn translate(&mut self, translation: &(f64, f64, f64)) {
-        self.x -= translation.0;
-        self.y -= translation.1;
-        self.z -= translation.2;
+    fn translate(&mut self, translation: &Translation) {
+        self.x -= translation.x;
+        self.y -= translation.y;
+        self.z -= translation.z;
     }
 
-    fn translate_rev(&mut self, translation: &(f64, f64, f64)) {
-        self.x += translation.0;
-        self.y += translation.1;
-        self.z += translation.2;
+    fn translate_rev(&mut self, translation: &Translation) {
+        self.x += translation.x;
+        self.y += translation.y;
+        self.z += translation.z;
     }
 }
 

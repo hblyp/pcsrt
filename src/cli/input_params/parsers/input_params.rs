@@ -1,8 +1,8 @@
 use chrono::{DateTime, Utc};
 use clap::ArgMatches;
 
-use crate::cli::{
-    input_params::{errors::InputParamsParseError, validators::ValidateCoords, arg_names::get_arg_names},
+use crate::cli::input_params::{
+    arg_names::get_arg_names, errors::InputParamsParseError, validators::ValidateCoords,
 };
 
 use super::{parse_file_type, FileType};
@@ -20,8 +20,8 @@ pub struct InputParams {
     pub step_mins: f64,
     pub voxel_size: Option<f64>,
     pub linke_turbidity_factor: f64,
-    pub block_size_in_voxels: u64,
-    pub block_overlap_in_voxels: u64,
+    pub block_size: usize,
+    pub block_overlap: usize,
 }
 
 pub fn parse_input_params(args: ArgMatches) -> Result<InputParams, InputParamsParseError> {
@@ -80,15 +80,22 @@ pub fn parse_input_params(args: ArgMatches) -> Result<InputParams, InputParamsPa
         .unwrap()
         .parse::<f64>()?;
 
-    let block_size_in_voxels = args
-        .value_of(arg_names.block_size_in_voxels)
-        .unwrap()
-        .parse::<u64>()?; // todo: validate 0
+    let block_size = if let Some(block_size) = args.value_of(arg_names.block_size) {
+        let block_size = block_size.parse::<usize>()?;
+        if block_size == 0 {
+            usize::MAX
+        } else {
+            block_size
+        }
+    } else {
+        usize::MAX
+    };
 
-    let block_overlap_in_voxels = args
-        .value_of(arg_names.block_overlap_in_voxels)
-        .unwrap()
-        .parse::<u64>()?; // todo: validate 0
+    let block_overlap = if let Some(block_overlap) = args.value_of(arg_names.block_overlap) {
+        block_overlap.parse::<usize>()?
+    } else {
+        usize::MAX
+    };
 
     Ok(InputParams {
         input_file,
@@ -103,7 +110,7 @@ pub fn parse_input_params(args: ArgMatches) -> Result<InputParams, InputParamsPa
         step_mins,
         voxel_size,
         linke_turbidity_factor,
-        block_size_in_voxels,
-        block_overlap_in_voxels,
+        block_size,
+        block_overlap,
     })
 }

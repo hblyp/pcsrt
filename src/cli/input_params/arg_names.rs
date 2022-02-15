@@ -10,8 +10,8 @@ pub struct ArgNames<'a> {
     pub step_mins: InputArgType<'a>,
     pub voxel_size: InputArgType<'a>,
     pub linke_turbidity_factor: InputArgType<'a>,
-    pub block_size_in_voxels: InputArgType<'a>,
-    pub block_overlap_in_voxels: InputArgType<'a>,
+    pub block_size: InputArgType<'a>,
+    pub block_overlap: InputArgType<'a>,
 }
 
 pub type InputArgType<'a> = &'a str;
@@ -29,7 +29,7 @@ pub fn get_arg_names<'a>() -> ArgNames<'a> {
         step_mins: "step_mins",
         voxel_size: "voxel_size",
         linke_turbidity_factor: "linke_turbidity_factor",
-        block_size_in_voxels: "block_size_in_voxels",
-        block_overlap_in_voxels: "block_overlap_in_voxels",
+        block_size: "block_size",
+        block_overlap: "block_overlap",
     }
 }

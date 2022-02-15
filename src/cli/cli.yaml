@@ -68,16 +68,16 @@ args:
       long: linke_turbidity_factor
       takes_value: true
       required: true
-  - block_size_in_voxels:
-      help: Block size in voxels (default=500)
+  - block_size:
+      help: Block size in meters
       value_name: block_size
-      long: block_size_in_voxels
+      long: block_size
       takes_value: true
       required: false
-  - block_overlap_in_voxels:
-      help: Block overlap in voxels (default=50)
+  - block_overlap:
+      help: Block overlap in meters
       value_name: block_overlap
-      long: block_overlap_in_voxels
+      long: block_overlap
       takes_value: true
       required: false
   # default args

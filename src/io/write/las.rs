@@ -1,13 +1,12 @@
 use std::{fs::File, io::BufWriter};
 
-use las::{
-    point::Format, Builder, Point as LasPoint, Transform, Vector, Write, Writer as LasWriter,
-};
-
 use crate::{
     cli::FileType,
     common::CloudParams,
     voxel::{Irradiation, Point},
+};
+use las::{
+    point::Format, Builder, Point as LasPoint, Transform, Vector, Write, Writer as LasWriter,
 };
 
 use super::WriteOutput;
@@ -74,7 +73,9 @@ impl LasFileWriter {
         insolation_times_vlr.data = fields_to_vlr(&fields);
         builder.evlrs.push(insolation_times_vlr);
 
-        let (min_x, min_y, min_z) = cloud_params.translation;
+        let min_x = cloud_params.extent.min.0.floor();
+        let min_y = cloud_params.extent.min.1.floor();
+        let min_z = cloud_params.extent.min.2.floor();
 
         builder.transforms = Vector {
             x: Transform {

@@ -1,94 +1,139 @@
-use crate::{io::Reader, voxel::IntoVoxelKey};
+use crate::{
+    io::Reader,
+    voxel::{GetCoords, Point, TranslatePoint, Translation, TrimDecimals},
+};
 
-use las::{Point, Read};
+use las::{Point as LasPoint, Read};
 
 use super::Extent;
 
 pub fn get_block_iterator<'a>(
     reader: &'a Reader,
-    extent: &'a Extent<i64>,
-    overlap_size: i64,
-    block_size: i64,
-    voxel_size: f64,
-) -> impl Iterator<Item = (Block, Vec<Point>)> + 'a {
+    extent: &'a Extent<f64>,
+    block_overlap: usize,
+    block_size: usize,
+) -> impl Iterator<Item = Block> + 'a {
     let (x_length, y_length, _) = extent.get_dimensions();
-    let x_blocks = (x_length as f64 / block_size as f64).ceil() as i64;
-    let y_blocks = (y_length as f64 / block_size as f64).ceil() as i64;
+    let x_blocks = (x_length / block_size as f64).ceil() as usize;
+    let y_blocks = (y_length / block_size as f64).ceil() as usize;
 
     (0..x_blocks).flat_map(move |i| {
         (0..y_blocks).map(move |j| {
-            let min_x = extent.min.0 + (i * block_size);
-            let min_y = extent.min.1 + (j * block_size);
-            let max_x = min_x + block_size;
-            let max_y = min_y + block_size;
-
-            let bbox = (min_x, min_y, max_x, max_y);
-
             let mut reader = reader.to_point_reader();
 
-            let block = Block::new(i as usize, j as usize, bbox, overlap_size);
+            let mut block = Block::new(block_size, block_overlap, i, j, x_blocks, y_blocks, extent);
 
-            let mut block_points = vec![];
+            reader
+                .points()
+                .flatten()
+                .for_each(|point| block.push_point(point));
 
-            println!("{:?}\n {:?}", block.bbox, block.overlap_bbox);
-
-            for point in reader.points().flatten() {
-                let (x, y, _) = point.to_key(voxel_size);
-                let (min_x, min_y, max_x, max_y) = block.overlap_bbox.unwrap_or(block.bbox);
-                let is_in_block = x >= min_x && y >= min_y && x <= max_x && y <= max_y;
-
-                if is_in_block {
-                    block_points.push(point);
-                }
-            }
-            (block, block_points)
+            block
         })
     })
 }
 
 pub struct Block {
-    pub i: usize,
-    pub j: usize,
-    pub bbox: (i64, i64, i64, i64),
-    pub overlap_bbox: Option<(i64, i64, i64, i64)>,
+    pub block_number: usize,
+    pub block_count: usize,
     pub points: Vec<Point>,
+    pub translation: Translation,
+    right_edge: bool,
+    top_edge: bool,
+    bbox: (f64, f64, f64, f64),
+    overlap_bbox: Option<(f64, f64, f64, f64)>,
 }
 
 impl Block {
-    pub fn new(i: usize, j: usize, bbox: (i64, i64, i64, i64), overlap_size: i64) -> Self {
-        let mut overlap_bbox = None;
-        if overlap_size > 0 {
+    pub fn new(
+        block_size: usize,
+        block_overlap: usize,
+        i: usize,
+        j: usize,
+        x_blocks: usize,
+        y_blocks: usize,
+        extent: &Extent<f64>,
+    ) -> Self {
+        let min_x = extent.min.0 + (i * block_size) as f64;
+        let min_y = extent.min.1 + (j * block_size) as f64;
+        let max_x = min_x + block_size as f64;
+        let max_y = min_y + block_size as f64;
+
+        let bbox = (min_x, min_y, max_x, max_y);
+
+        let translation = Translation {
+            x: min_x.floor(),
+            y: min_y.floor(),
+            z: extent.min.2.floor(),
+        };
+
+        let overlap_bbox = if block_overlap > 0 {
             let (min_x, min_y, max_x, max_y) = bbox;
-            overlap_bbox = Some((
-                min_x - overlap_size,
-                min_y - overlap_size,
-                max_x + overlap_size,
-                max_y + overlap_size,
-            ));
-        }
+            Some((
+                min_x - block_overlap as f64,
+                min_y - block_overlap as f64,
+                max_x + block_overlap as f64,
+                max_y + block_overlap as f64,
+            ))
+        } else {
+            None
+        };
+
+        let right_edge = i == x_blocks - 1;
+        let top_edge = j == y_blocks - 1;
+
         Block {
-            i,
-            j,
+            block_count: x_blocks * y_blocks,
+            block_number: i * y_blocks + j + 1,
+            translation,
+            right_edge,
+            top_edge,
             bbox,
             overlap_bbox,
             points: vec![],
         }
     }
 
-    pub fn is_voxel_in_overlap(&self, voxel_key: &(i64, i64, i64)) -> bool {
-        if let Some((min_x_over, min_y_over, max_x_over, max_y_over)) = self.overlap_bbox {
-            let (x, y, _z) = *voxel_key;
+    fn push_point(&mut self, point: LasPoint) {
+        if self.is_in_overlap_block(&point) {
+            let overlap = !self.is_in_block(&point);
+            let mut point = Point {
+                x: point.x,
+                y: point.y,
+                z: point.z,
+                overlap,
+            };
+            point.translate(&self.translation);
+            point.trim_decimals(3);
 
-            let (min_x, min_y, max_x, max_y) = self.bbox;
-
-            let is_in_block =
-                x >= min_x_over && y >= min_y_over && x <= max_x_over && y <= max_y_over;
-
-            let is_in_bbox = x >= min_x && y >= min_y && x <= max_x && y <= max_y;
-
-            is_in_block && !is_in_bbox
-        } else {
-            false
+            self.points.push(point);
         }
+    }
+
+    fn is_in_block(&self, point: &impl GetCoords) -> bool {
+        let (min_x, min_y, max_x, max_y) = self.bbox;
+
+        let left = point.x() >= min_x;
+
+        let bottom = point.y() >= min_y;
+
+        let right = if self.right_edge {
+            point.x() <= max_x
+        } else {
+            point.x() < max_x
+        };
+
+        let top = if self.top_edge {
+            point.y() <= max_y
+        } else {
+            point.y() < max_y
+        };
+
+        left && bottom && right && top
+    }
+
+    fn is_in_overlap_block(&self, point: &impl GetCoords) -> bool {
+        let (min_x, min_y, max_x, max_y) = self.overlap_bbox.unwrap_or(self.bbox);
+        point.x() >= min_x && point.y() >= min_y && point.x() <= max_x && point.y() <= max_y
     }
 }

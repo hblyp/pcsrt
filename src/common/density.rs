@@ -8,22 +8,22 @@ use super::{get_block_iterator, Extent};
 
 pub fn get_cloud_density(
     reader: &Reader,
-    extent: &Extent<i64>,
-    block_size: i64,
+    extent: &Extent<f64>,
+    block_size: usize,
     voxel_size: f64,
 ) -> Result<Density, Box<dyn Error>> {
-    let block_iterator = get_block_iterator(reader, extent, 0, block_size, voxel_size);
+    let block_iterator = get_block_iterator(reader, extent, 0, block_size);
 
     let mut max_density = 0;
     let mut min_density = usize::MAX;
     let mut point_count: usize = 0;
     let mut voxel_count: usize = 0;
 
-    for (_block, points) in block_iterator {
+    for block in block_iterator {
         let mut counter: HashMap<(i64, i64, i64), usize, BuildHasherDefault<XxHash64>> =
             HashMap::default();
 
-        for point in points {
+        for point in block.points {
             point_count += 1;
             let key = point.to_key(voxel_size);
             if let Some(count) = counter.get_mut(&key) {

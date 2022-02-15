@@ -34,23 +34,20 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
 
     let block_iterator = get_block_iterator(
         &reader,
-        &cloud_params.voxel_extent,
-        input_params.block_overlap_in_voxels as i64,
-        input_params.block_size_in_voxels as i64,
-        cloud_params.voxel_size,
+        &cloud_params.extent,
+        input_params.block_overlap,
+        input_params.block_size,
     );
 
-    let (x_length, y_length, _) = cloud_params.voxel_extent.get_dimensions();
-    let block_count = (x_length as f64 / input_params.block_size_in_voxels as f64).ceil() as i64
-        * (y_length as f64 / input_params.block_size_in_voxels as f64).ceil() as i64;
-
-    let mut block_num = 0;
-    for (block, points) in block_iterator {
-        block_num += 1;
-
-        info!("Processing cloud block {}/{}", block_num, block_count);
+    for block in block_iterator {
+        if block.block_count > 1 {
+            info!(
+                "Processing cloud block {}/{}",
+                block.block_number, block.block_count
+            );
+        }
         let mut voxel_grid: VoxelGrid<Voxel> =
-            build_voxel_grid(points, cloud_params.voxel_size, &cloud_params.translation)?;
+            build_voxel_grid(block.points, cloud_params.voxel_size)?;
 
         info!("Calculating normals for voxels");
         calculate_normals(&mut voxel_grid)?;
@@ -58,20 +55,12 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
         info!("Calculating solar radiation");
         calculate_solar_radiation(&voxel_grid, &input_params);
 
-        let voxel_grid: VoxelGrid<Voxel> = voxel_grid
-            .into_iter()
-            .filter(|(voxel_key, _)| {
-                let is_in_overlap = block.is_voxel_in_overlap(voxel_key);
-                !is_in_overlap
-            })
-            .collect();
-
         info!(
             "Writing solar radiation for block to file \"{}\"",
             input_params.output_file
         );
 
-        writer.write(voxel_grid, &cloud_params.translation)?;
+        writer.write(voxel_grid, &block.translation)?;
     }
 
     Ok(())
