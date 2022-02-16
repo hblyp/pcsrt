@@ -2,9 +2,11 @@ use std::error::Error;
 
 use las::Read;
 
-use crate::{cli::InputParams, io::Reader};
+use crate::{cli::InputParams, common::Extent, io::Reader};
 
-use super::{get_cloud_density, Extent};
+use super::{
+    average_points::get_average_points_in_voxel, voxel_size::get_voxel_size_and_average_points,
+};
 
 pub fn get_cloud_params(
     input_params: &InputParams,
@@ -22,14 +24,18 @@ pub fn get_cloud_params(
         extent.update((point.x, point.y, point.z));
     }
 
-    let voxel_size = if input_params.voxel_size.is_none() {
-        get_voxel_size(reader, &extent, input_params.block_size)?
+    let (voxel_size, average_points_in_voxel) = if input_params.voxel_size.is_none() {
+        get_voxel_size_and_average_points(reader, &extent, input_params.block_size, 4., 0.5)
     } else {
-        input_params.voxel_size.unwrap()
+        let voxel_size = input_params.voxel_size.unwrap();
+        let average_points_in_voxel =
+            get_average_points_in_voxel(reader, &extent, input_params.block_size, voxel_size);
+        (voxel_size, average_points_in_voxel)
     };
 
     let cloud_params = CloudParams {
         voxel_size,
+        average_points_in_voxel,
         point_count,
         extent,
     };
@@ -37,21 +43,9 @@ pub fn get_cloud_params(
     Ok(cloud_params)
 }
 
-fn get_voxel_size(
-    reader: &Reader,
-    extent: &Extent<f64>,
-    block_size: usize,
-) -> Result<f64, Box<dyn Error>> {
-    let meter_voxel_size = 1.;
-    let density = get_cloud_density(reader, extent, block_size, meter_voxel_size)?;
-    let desired_points_in_voxel = 3.;
-    let voxel_size =
-        (meter_voxel_size / density.average * desired_points_in_voxel * 100.).round() / 100.;
-    Ok(voxel_size)
-}
-
 pub struct CloudParams {
     pub voxel_size: f64,
+    pub average_points_in_voxel: f64,
     pub point_count: usize,
     pub extent: Extent<f64>,
 }

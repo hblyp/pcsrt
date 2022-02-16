@@ -2,7 +2,7 @@ use std::{fs::File, io::BufWriter};
 
 use crate::{
     cli::FileType,
-    common::CloudParams,
+    cloud_params::CloudParams,
     voxel::{Irradiation, Point},
 };
 use las::{

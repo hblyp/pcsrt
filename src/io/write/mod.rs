@@ -2,7 +2,7 @@ use std::error::Error;
 
 use crate::{
     cli::FileType,
-    common::CloudParams,
+    cloud_params::CloudParams,
     voxel::{Irradiation, Point, TranslatePoint, Translation, Voxel, VoxelGrid},
 };
 

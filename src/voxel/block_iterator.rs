@@ -1,13 +1,12 @@
 use crate::{
     io::Reader,
-    voxel::{GetCoords, Point, TranslatePoint, Translation, TrimDecimals},
+    voxel::{GetCoords, Point, TranslatePoint, Translation, TrimDecimals}, common::Extent,
 };
 
 use las::{Point as LasPoint, Read};
 
-use super::Extent;
 
-pub fn get_block_iterator<'a>(
+pub fn get_voxel_block_iterator<'a>(
     reader: &'a Reader,
     extent: &'a Extent<f64>,
     block_overlap: usize,

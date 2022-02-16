@@ -4,10 +4,10 @@ use log::{info, warn};
 
 use crate::{
     cli::read_input_params,
-    common::{get_block_iterator, get_cloud_params},
+    cloud_params::get_cloud_params,
     io::{Reader, Writer},
     radiation::calculate_solar_radiation,
-    voxel::{build_voxel_grid, calculate_normals, Voxel, VoxelGrid},
+    voxel::{build_voxel_grid, calculate_normals, Voxel, VoxelGrid, get_voxel_block_iterator},
 };
 
 pub fn pcsrt() -> Result<(), Box<dyn Error>> {
@@ -18,8 +18,9 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
     let cloud_params = get_cloud_params(&input_params, &reader)?;
 
     info!(
-        "Computing solar radiation for:\nInput file: {}\nVoxel size: {}\nTime range: {} - {}\nTime step: {}min",
+        "Computing solar radiation for:\nInput file: {}\nPoint count: {}\nVoxel size: {}\nTime range: {} - {}\nTime step: {}min",
         input_params.input_file,
+        cloud_params.point_count,
         cloud_params.voxel_size,
         input_params.start_time.to_rfc3339(),
         input_params.end_time.to_rfc3339(),
@@ -32,7 +33,7 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
         &cloud_params,
     )?;
 
-    let block_iterator = get_block_iterator(
+    let block_iterator = get_voxel_block_iterator(
         &reader,
         &cloud_params.extent,
         input_params.block_overlap,

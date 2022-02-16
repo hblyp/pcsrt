@@ -7,7 +7,7 @@ use std::error::Error;
 use std::{fs::File, io::BufWriter};
 
 use crate::cli::FileType;
-use crate::common::CloudParams;
+use crate::cloud_params::CloudParams;
 use crate::voxel::{Irradiation, Point};
 
 use super::WriteOutput;
