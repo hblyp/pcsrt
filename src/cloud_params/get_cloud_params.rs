@@ -25,7 +25,13 @@ pub fn get_cloud_params(
     }
 
     let (voxel_size, average_points_in_voxel) = if input_params.voxel_size.is_none() {
-        get_voxel_size_and_average_points(reader, &extent, input_params.block_size, 4., 0.5)
+        get_voxel_size_and_average_points(
+            reader,
+            &extent,
+            input_params.block_size,
+            input_params.average_points_in_voxel,
+            0.5,
+        )
     } else {
         let voxel_size = input_params.voxel_size.unwrap();
         let average_points_in_voxel =

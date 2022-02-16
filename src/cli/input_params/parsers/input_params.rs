@@ -19,6 +19,7 @@ pub struct InputParams {
     pub end_time: DateTime<Utc>,
     pub step_mins: f64,
     pub voxel_size: Option<f64>,
+    pub average_points_in_voxel: f64,
     pub linke_turbidity_factor: f64,
     pub block_size: usize,
     pub block_overlap: usize,
@@ -75,6 +76,14 @@ pub fn parse_input_params(args: ArgMatches) -> Result<InputParams, InputParamsPa
         None => None,
     };
 
+    let average_points_in_voxel = if let Some(average_points_in_voxel) =
+        args.value_of(arg_names.average_points_in_voxel)
+    {
+        average_points_in_voxel.parse::<f64>()?
+    } else {
+        4.
+    };
+
     let linke_turbidity_factor = args
         .value_of(arg_names.linke_turbidity_factor)
         .unwrap()
@@ -109,6 +118,7 @@ pub fn parse_input_params(args: ArgMatches) -> Result<InputParams, InputParamsPa
         end_time,
         step_mins,
         voxel_size,
+        average_points_in_voxel,
         linke_turbidity_factor,
         block_size,
         block_overlap,

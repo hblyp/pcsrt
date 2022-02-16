@@ -3,87 +3,87 @@ version: "0.1"
 author: Filip Pružinec <pruzinec.f@gmail.com>
 about: A toolbox for computation of solar radiation from point cloud data.
 args:
-  - input_file:
-      help: Input point cloud
-      value_name: i
-      long: input_file
-      takes_value: true
-      required: true
-  - output_file:
-      help: Output file
-      value_name: o
-      long: output_file
-      takes_value: true
-      required: true
-  - output_ply_ascii:
-      help: Optional flag for ascii ply output (output file might get bigger)
-      value_name: text_ply
-      long: output_ply_ascii
-      takes_value: false
-  - centroid_lat:
-      help: Latitude of the centroid of the input point cloud
-      value_name: cen_lat
-      long: centroid_lat
-      takes_value: true
-      required: true
-  - centroid_lon:
-      help: Longitude of the centroid of the input point cloud
-      value_name: cen_lon
-      long: centroid_lon
-      takes_value: true
-      required: true
-  - centroid_elev:
-      help: Elevation of the centroid of the input point cloud in meters
-      value_name: cen_elev
-      long: centroid_elev
-      takes_value: true
-      required: true
-  - start_time:
-      help: Start datetime of the calculation (RFC3339)
-      value_name: start
-      long: start_time
-      takes_value: true
-      required: true
-  - end_time:
-      help: End datetime of the calculation (RFC3339)
-      value_name: end
-      long: end_time
-      takes_value: true
-      required: true
-  - step_mins:
-      help: Iteration time step in minutes
-      value_name: step
-      long: step_mins
-      takes_value: true
-      required: true
-  - voxel_size:
-      help: Size of the voxel in meters
-      value_name: size
-      long: voxel_size
-      takes_value: true
-      required: false
-  - linke_turbidity_factor:
-      help: Linke turbidity factor # todo add some links
-      value_name: linke
-      long: linke_turbidity_factor
-      takes_value: true
-      required: true
-  - block_size:
-      help: Block size in meters
-      value_name: block_size
-      long: block_size
-      takes_value: true
-      required: false
-  - block_overlap:
-      help: Block overlap in meters
-      value_name: block_overlap
-      long: block_overlap
-      takes_value: true
-      required: false
-  # default args
-  - verbose:
-      short: v
-      help: Run tools with verbose output
+    - input_file:
+          help: Input point cloud
+          value_name: i
+          long: input_file
+          takes_value: true
+          required: true
+    - output_file:
+          help: Output file
+          value_name: o
+          long: output_file
+          takes_value: true
+          required: true
+    - output_ply_ascii:
+          help: Optional flag for ascii ply output (output file might get bigger)
+          value_name: text_ply
+          long: output_ply_ascii
+          takes_value: false
+    - centroid_lat:
+          help: Latitude of the centroid of the input point cloud
+          value_name: cen_lat
+          long: centroid_lat
+          takes_value: true
+          required: true
+    - centroid_lon:
+          help: Longitude of the centroid of the input point cloud
+          value_name: cen_lon
+          long: centroid_lon
+          takes_value: true
+          required: true
+    - centroid_elev:
+          help: Elevation of the centroid of the input point cloud in meters
+          value_name: cen_elev
+          long: centroid_elev
+          takes_value: true
+          required: true
+    - start_time:
+          help: Start datetime of the calculation (RFC3339)
+          value_name: start
+          long: start_time
+          takes_value: true
+          required: true
+    - end_time:
+          help: End datetime of the calculation (RFC3339)
+          value_name: end
+          long: end_time
+          takes_value: true
+          required: true
+    - step_mins:
+          help: Iteration time step in minutes
+          value_name: step
+          long: step_mins
+          takes_value: true
+          required: true
+    - average_points_in_voxel:
+          help: If voxel size is not specified, you can set the amount of average points in voxel instead
+          value_name: average_points
+          long: average_points_in_voxel
+          takes_value: true
+          required: false
+    - linke_turbidity_factor:
+          help: Linke turbidity factor # todo add some links
+          value_name: linke
+          long: linke_turbidity_factor
+          takes_value: true
+          required: true
+    - block_size:
+          help: Block size in meters
+          value_name: block_size
+          long: block_size
+          takes_value: true
+          required: false
+    - block_overlap:
+          help: Block overlap in meters
+          value_name: block_overlap
+          long: block_overlap
+          takes_value: true
+          required: false
+    # default args
+    - verbose:
+          short: v
+          help: Run tools with verbose output
 # subcommands:
 #   - test:
 #       about: controls testing features
