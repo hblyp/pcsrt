@@ -121,7 +121,7 @@ pub fn parse_input_params(args: ArgMatches) -> Result<InputParams, InputParamsPa
     let block_overlap = if let Some(block_overlap) = args.value_of(arg_names.block_overlap) {
         block_overlap.parse::<usize>()?
     } else {
-        usize::MAX
+        0
     };
 
     Ok(InputParams {
