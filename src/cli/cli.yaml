@@ -1,95 +1,87 @@
-name: Solar radiation toolbox
+name: Point Cloud Solar Radiation Tool
 version: "0.1"
 author: Filip Pružinec <pruzinec.f@gmail.com>
-about: A toolbox for computation of solar radiation from point cloud data.
+about: A tool for modeling solar radiation & insolation on point cloud data built in Rust.
 args:
     - input_file:
-          help: Input point cloud
-          value_name: i
+          help: Input file path (las/laz)
+          value_name: path
           long: input_file
           takes_value: true
           required: true
     - output_file:
-          help: Output file
-          value_name: o
+          help: Output file path. File extension specifies the output format (las/laz/ply)
+          value_name: path
           long: output_file
           takes_value: true
           required: true
     - output_ply_ascii:
-          help: Optional flag for ascii ply output (output file might get bigger)
-          value_name: text_ply
+          help: Flag for text ply output file
           long: output_ply_ascii
           takes_value: false
     - centroid_lat:
-          help: Latitude of the centroid of the input point cloud
-          value_name: cen_lat
+          help: Latitude of the centroid used as reference point in solar position calculation
+          value_name: decimal
           long: centroid_lat
           takes_value: true
           required: true
     - centroid_lon:
-          help: Longitude of the centroid of the input point cloud
-          value_name: cen_lon
+          help: Longitude of the centroid used as reference point in solar position calculation
+          value_name: decimal
           long: centroid_lon
           takes_value: true
           required: true
     - centroid_elev:
-          help: Elevation of the centroid of the input point cloud in meters
-          value_name: cen_elev
+          help: Ellipsoidal elevation of the centroid
+          value_name: decimal
           long: centroid_elev
           takes_value: true
           required: true
     - start_time:
-          help: Start datetime of the calculation (RFC3339)
-          value_name: start
+          help: Start time of the modeled period in RFC3339 format (2020-01-01T12:00:00.000Z)
+          value_name: RFC3339 datetime
           long: start_time
           takes_value: true
           required: true
     - end_time:
-          help: End datetime of the calculation (RFC3339)
-          value_name: end
+          help: End time of the modeled period in RFC3339 format (2020-02-01T12:00:00.000Z)
+          value_name: RFC3339 datetime
           long: end_time
           takes_value: true
           required: true
     - step_mins:
-          help: Iteration time step in minutes
-          value_name: step
+          help: Step in minutes used between start_time and end_time
+          value_name: unsigned integer
           long: step_mins
           takes_value: true
           required: true
-    - average_points_in_voxel:
-          help: If voxel size is not specified, you can set the amount of average points in voxel instead
-          value_name: average_points
-          long: average_points_in_voxel
-          takes_value: true
-          required: false
     - linke_turbidity_factor:
-          help: Linke turbidity factor # todo add some links
-          value_name: linke
+          help: Linke turbidity factor used in ESRA solar radiation model
+          value_name: decimal
           long: linke_turbidity_factor
           takes_value: true
           required: true
+    - voxel_size:
+          help: Size of the voxel in meters
+          value_name: decimal
+          long: voxel_size
+          takes_value: true
+          required: false
+    - average_points_in_voxel:
+          help: Instead of specifing voxel size, average points in voxel can be used. (if not specified, 4 points in average will be used)
+          value_name: unsigned integer
+          long: average_points_in_voxel
+          takes_value: true
+          required: false
     - block_size:
-          help: Block size in meters
-          value_name: block_size
+          help: If specified (meters), the cloud will be processed sequentially in square blocks. (uses less RAM, takes longer)
+          value_name: decimal
           long: block_size
           takes_value: true
           required: false
     - block_overlap:
-          help: Block overlap in meters
-          value_name: block_overlap
+          help: Distance in meters defining the area around block included in the calculation
+          value_name: decimal
           long: block_overlap
           takes_value: true
           required: false
-    # default args
-    - verbose:
-          short: v
-          help: Run tools with verbose output
-# subcommands:
-#   - test:
-#       about: controls testing features
-#       version: "1.3"
-#       author: Someone E. <someone_else@other.com>
-#       args:
-#         - debug:
-#             short: d
-#             help: print debug information
