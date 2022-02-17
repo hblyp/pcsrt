@@ -16,7 +16,7 @@ pcsrt addresses the issue of solar radiation modeling in 3D space using generic 
 
 ## Usage
 
-pcsrt is a command line tool that requires at least the point cloud centroid position, linke turbidity factor and time period to be specified in addition to input and output file paths. However, additional optional parameters can be used to modify the way in which pcsrt process the point cloud. The most "sensitive" params are `linke_turbidity_factor` which has direct impact on output solar radiation values and `voxel_size` that specifies the detail in which the cloud is processed.
+pcsrt is a command line tool that requires at least the point cloud centroid position, Linke turbidity factor and time period to be specified in addition to input and output file paths. However, additional optional parameters can be used to modify the way in which pcsrt process the point cloud. The most "sensitive" params are `linke_turbidity_factor` which has direct impact on output solar radiation values and `voxel_size` that specifies the detail in which the cloud is processed.
 
 Currently LAS/LAZ file readers are implemented for input files and LAS/LAZ & PLY (binary and text) writers are implemented for output files.
 
