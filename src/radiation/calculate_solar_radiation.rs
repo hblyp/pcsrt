@@ -17,7 +17,7 @@ pub fn calculate_solar_radiation(voxel_grid: &VoxelGrid<Voxel>, input_params: &I
     let no_of_day = f64::from(
         Utc.timestamp_millis(input_params.start_time.timestamp_millis())
             .ordinal0(),
-    ); // todo check if coorect
+    ); // todo check if correct
 
     let sun_positions = get_sun_positions(input_params);
 
