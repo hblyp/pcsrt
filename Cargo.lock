@@ -444,6 +444,7 @@ dependencies = [
  "nalgebra",
  "ply-rs",
  "rayon",
+ "regex",
  "twox-hash",
 ]
 

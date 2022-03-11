@@ -56,8 +56,8 @@ args:
           takes_value: true
           required: true
     - linke_turbidity_factor:
-          help: Linke turbidity factor used in ESRA solar radiation model
-          value_name: decimal
+          help: Linke turbidity factor - single float or 12 (monthly) float values separated by comma
+          value_name: linke
           long: linke_turbidity_factor
           takes_value: true
           required: true

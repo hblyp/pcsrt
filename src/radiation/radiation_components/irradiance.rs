@@ -6,15 +6,22 @@ use crate::voxel::Voxel;
 
 use super::VoxelIrradiance;
 use super::{get_beam_irradiance, get_diffuse_irradiance};
+use chrono::{Datelike, TimeZone, Utc};
 use nalgebra::Vector3;
 
 pub fn get_irradiance<'a>(
     input_params: &InputParams,
     voxel: &'a Voxel,
     sun_position: &SunPosition,
-    no_of_day: f64,
     in_shadow: bool,
 ) -> VoxelIrradiance<'a> {
+    let no_of_day = f64::from(
+        Utc.timestamp_millis(sun_position.time.timestamp_millis())
+            .ordinal0(),
+    ); // todo check if coorect
+    let month = sun_position.time.month();
+    let linke_turbidity_factor = input_params.linke_turbidity_factor.get_val(month);
+
     let solar_altitude = sun_position.altitude;
     let solar_azimuth = sun_position.azimuth;
     let elevation = input_params.centroid_elev;
@@ -38,7 +45,7 @@ pub fn get_irradiance<'a>(
             solar_altitude,
             incline_angle,
             solar_distance_variation_correction,
-            input_params.linke_turbidity_factor,
+            linke_turbidity_factor,
         ))
     } else {
         None
@@ -49,7 +56,7 @@ pub fn get_irradiance<'a>(
         incline_angle,
         voxel.normal_vector.as_na_vec(),
         solar_distance_variation_correction,
-        input_params.linke_turbidity_factor,
+        linke_turbidity_factor,
         beam_component,
     );
 
