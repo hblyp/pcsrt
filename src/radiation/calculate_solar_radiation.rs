@@ -1,5 +1,3 @@
-use chrono::prelude::*;
-use chrono::Utc;
 use rayon::prelude::*;
 use std::rc::Rc;
 
@@ -14,11 +12,6 @@ use crate::voxel::Voxel;
 use crate::voxel::VoxelGrid;
 
 pub fn calculate_solar_radiation(voxel_grid: &VoxelGrid<Voxel>, input_params: &InputParams) {
-    let no_of_day = f64::from(
-        Utc.timestamp_millis(input_params.start_time.timestamp_millis())
-            .ordinal0(),
-    ); // todo check if coorect
-
     let sun_positions = get_sun_positions(input_params);
 
     sun_positions.par_iter().for_each(|sun_position| {
@@ -31,8 +24,12 @@ pub fn calculate_solar_radiation(voxel_grid: &VoxelGrid<Voxel>, input_params: &I
             if let Some(voxel_in_shadow) =
                 voxel_illumination_map.get_voxel_in_shadow(rot_voxel_key_pair)
             {
-                let irradiance =
-                    get_irradiance(input_params, voxel_in_shadow, sun_position, no_of_day, true);
+                let irradiance = get_irradiance(
+                    input_params,
+                    voxel_in_shadow,
+                    sun_position,
+                    true,
+                );
 
                 update_global_irradiance(voxel_in_shadow, &irradiance, true);
             }
@@ -43,7 +40,6 @@ pub fn calculate_solar_radiation(voxel_grid: &VoxelGrid<Voxel>, input_params: &I
                 input_params,
                 illuminated_voxel,
                 sun_position,
-                no_of_day,
                 false,
             );
             update_global_irradiance(illuminated_voxel, &irradiance, false);

@@ -2,6 +2,7 @@ use std::f64::consts::PI;
 
 use super::calc_solar_position;
 use crate::cli::InputParams;
+use chrono::{DateTime, Utc};
 use nalgebra::{Rotation, Rotation3};
 
 pub fn get_sun_positions(
@@ -34,6 +35,7 @@ pub fn get_sun_positions(
                     rotation_z,
                     azimuth,
                     altitude,
+                    time,
                 })
             } else {
                 None
@@ -48,4 +50,5 @@ pub struct SunPosition {
     pub rotation_z: Rotation<f64, 3>,
     pub azimuth: f64,
     pub altitude: f64,
+    pub time: DateTime<Utc>,
 }

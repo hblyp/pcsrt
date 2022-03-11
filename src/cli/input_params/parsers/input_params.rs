@@ -1,8 +1,12 @@
 use chrono::{DateTime, Utc};
 use clap::ArgMatches;
+use regex::Regex;
 
-use crate::cli::input_params::{
-    arg_names::get_arg_names, errors::InputParamsParseError, validators::ValidateCoords,
+use crate::{
+    cli::input_params::{
+        arg_names::get_arg_names, errors::InputParamsParseError, validators::ValidateCoords,
+    },
+    common::Linke,
 };
 
 use super::{parse_file_type, FileType};
@@ -20,7 +24,7 @@ pub struct InputParams {
     pub step_mins: f64,
     pub voxel_size: Option<f64>,
     pub average_points_in_voxel: f64,
-    pub linke_turbidity_factor: f64,
+    pub linke_turbidity_factor: Linke,
     pub block_size: usize,
     pub block_overlap: usize,
 }
@@ -76,18 +80,32 @@ pub fn parse_input_params(args: ArgMatches) -> Result<InputParams, InputParamsPa
         None => None,
     };
 
-    let average_points_in_voxel = if let Some(average_points_in_voxel) =
-        args.value_of(arg_names.average_points_in_voxel)
-    {
-        average_points_in_voxel.parse::<f64>()?
-    } else {
-        4.
-    };
+    let average_points_in_voxel =
+        if let Some(average_points_in_voxel) = args.value_of(arg_names.average_points_in_voxel) {
+            average_points_in_voxel.parse::<f64>()?
+        } else {
+            4.
+        };
 
-    let linke_turbidity_factor = args
-        .value_of(arg_names.linke_turbidity_factor)
-        .unwrap()
-        .parse::<f64>()?;
+    let linke_turbidity_factor: Linke = {
+        let linke_str = args.value_of(arg_names.linke_turbidity_factor).unwrap();
+        let single_re = Regex::new(r"^\d+\.{0,1}\d*$").unwrap();
+        let monthly_re = Regex::new(r"^(\d+\.{0,1}\d*,){11}\d+\.{0,1}\d*$").unwrap();
+        if single_re.is_match(linke_str) {
+            let single_linke = linke_str.parse::<f64>()?;
+            Linke::from_single(single_linke)
+        } else if monthly_re.is_match(linke_str) {
+            let linke_vec = linke_str
+                .split(",")
+                .map(|val| val.parse::<f64>())
+                .flatten()
+                .collect::<Vec<f64>>();
+            let linke_array: [f64; 12] = linke_vec.try_into().unwrap();
+            Linke::from_array(&linke_array)
+        } else {
+            panic!("Invalid Linke turbidity factor value [Use single float value or 12 (monthly) float values separated by comma]")
+        }
+    };
 
     let block_size = if let Some(block_size) = args.value_of(arg_names.block_size) {
         let block_size = block_size.parse::<usize>()?;

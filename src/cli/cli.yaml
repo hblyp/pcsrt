@@ -63,7 +63,7 @@ args:
           takes_value: true
           required: false
     - linke_turbidity_factor:
-          help: Linke turbidity factor # todo add some links
+          help: Linke turbidity factor - single float or 12 (monthly) float values separated by comma
           value_name: linke
           long: linke_turbidity_factor
           takes_value: true
