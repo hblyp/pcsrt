@@ -29,12 +29,12 @@ pub fn get_irradiance<'a>(
 
     let zenith_angle = (PI / 2.) - solar_altitude;
     let sun_direction = Vector3::from([
-        (solar_azimuth).cos() * (zenith_angle).cos(),
         (solar_azimuth).sin() * (zenith_angle).cos(),
-        (zenith_angle).sin(),
+        (solar_azimuth).cos() * (zenith_angle).cos(),
+        (solar_altitude).sin(),
     ]);
-    let mut incline_angle = (PI / 2.) - voxel.normal_vector.angle(&sun_direction);
 
+    let mut incline_angle = (PI / 2.) - voxel.normal_vector.angle(&sun_direction);
     if incline_angle < 0. {
         incline_angle += PI / 2.;
     };
