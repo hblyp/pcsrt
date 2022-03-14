@@ -161,10 +161,18 @@ impl NormalVector {
         Vector3::from([self.x, self.y, self.z])
     }
     pub fn from_na_vec(na_vec: &Vector3<f64>) -> Self {
-        NormalVector {
-            x: na_vec[0],
-            y: na_vec[1],
-            z: na_vec[2],
+        if na_vec[2] < 0. {
+            NormalVector {
+                x: -na_vec[0],
+                y: -na_vec[1],
+                z: -na_vec[2],
+            }
+        } else {
+            NormalVector {
+                x: na_vec[0],
+                y: na_vec[1],
+                z: na_vec[2],
+            }
         }
     }
     pub fn angle(&self, vec: &Vector3<f64>) -> f64 {

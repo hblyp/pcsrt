@@ -33,7 +33,7 @@ pub fn get_irradiance<'a>(
         (solar_azimuth).sin() * (zenith_angle).cos(),
         (zenith_angle).sin(),
     ]);
-    let mut incline_angle = voxel.normal_vector.angle(&sun_direction);
+    let mut incline_angle = (PI / 2.) - voxel.normal_vector.angle(&sun_direction);
 
     if incline_angle < 0. {
         incline_angle += PI / 2.;
