@@ -43,10 +43,11 @@ pcsrt --input_file <path> --centroid_lat <decimal> --centroid_lon <decimal> --ce
 | --start_time              | RFC3339 date | yes      | Start time of the modeled period in RFC3339 format (`2020-01-01T12:00:00.000Z`) |
 | --end_time                | RFC3339 date | yes      | End time of the modeled period in RFC3339 format (`2020-02-01T12:00:00.000Z`)   |
 | --step_mins               | unsigned int | yes      | Step in minutes in which the solar radiation/insolation is modeled                 |
-| --linke_turbidity_factor  | decimal      | yes      | Linke turbidity factor used in [ESRA  solar radiation model](https://www.sciencedirect.com/science/article/pii/S0038092X99000559) (also accepts monthly comma separated values) |
+| --linke_turbidity_factor  | decimal      | yes      | Linke turbidity factor used in [ESRA  solar radiation model](https://www.sciencedirect.com/science/article/pii/S0038092X99000559) (also accepts monthly comma separated values e.g. `3.2,3,2.5,[...],2.7,3`) |
 | --voxel_size              | decimal      | no       | Size of the voxel in meters                                                       |
 | --average_points_in_voxel | decimal      | no       | If the voxel size is not specified, pcsrt will calculate it's value based on average points in voxel. If both voxel size and average points are not specified, voxel size will be calculated with 4 points in average.          |
 | --block_size              | unsigned int | no       | If specified (meters), pcsrt will divide the cloud in square blocks and process them sequentially. This parameter is useful if the whole cloud does not fit in the memory.                                                       |
 | --block_overlap           | unsigned int | no       | Distance in meters defining the area around block included in the calculation      |
 
 ## License
+PCSRT is [MIT licensed](/LICENSE).
