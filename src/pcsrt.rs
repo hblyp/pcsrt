@@ -11,9 +11,9 @@ use crate::{
 };
 
 pub fn pcsrt() -> Result<(), Box<dyn Error>> {
-    info!("Reading input params");
     let input_params = read_input_params();
-
+    
+    info!("Reading cloud params");
     let reader = Reader::new(&input_params.input_file, &input_params.input_file_type);
     let cloud_params = get_cloud_params(&input_params, &reader)?;
 
