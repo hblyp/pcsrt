@@ -1,9 +1,10 @@
 use std::f64::consts::PI;
 
-use super::calc_solar_position;
+// use super::calc_solar_position;
 use crate::cli::InputParams;
 use chrono::{DateTime, Utc};
 use nalgebra::{Rotation, Rotation3};
+use spa::calc_solar_position;
 
 pub fn get_sun_positions(
     InputParams {

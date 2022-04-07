@@ -445,6 +445,7 @@ dependencies = [
  "ply-rs",
  "rayon",
  "regex",
+ "spa",
  "twox-hash",
 ]
 
@@ -743,6 +744,15 @@ dependencies = [
  "pulldown-cmark",
  "tempfile",
  "walkdir",
+]
+
+[[package]]
+name = "spa"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "188e0376df998cb9f953a6d4ceb8556fe9223d1f3386e5c0cdb69aab31d62f1b"
+dependencies = [
+ "chrono",
 ]
 
 [[package]]
