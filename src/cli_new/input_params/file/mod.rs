@@ -4,7 +4,7 @@ mod parsers;
 pub use self::errors::ParseFileError;
 pub use self::parsers::parse_file;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FileType {
     Las,
     Laz,

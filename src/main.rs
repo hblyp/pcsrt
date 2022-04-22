@@ -23,10 +23,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     env::set_var("RUST_LOG", "pcsrt=info");
     env_logger::builder().format_target(false).init();
 
-    let input_params = InputParams::parse();
-
-    panic!("stop");
-
     info!("========= Point Cloud Solar Radiation Tool =========");
 
     pcsrt()?;

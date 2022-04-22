@@ -3,7 +3,7 @@ use ::las::Reader as LasReader;
 use std::fs::File;
 use std::io::BufReader;
 
-use crate::cli::FileType;
+use crate::cli_new::input_params::file::{File as InputFile, FileType};
 
 mod las;
 mod ply;
@@ -14,10 +14,10 @@ pub struct Reader {
 }
 
 impl Reader {
-    pub fn new(input_file: &str, input_file_type: &FileType) -> Self {
+    pub fn new(input_file: &InputFile) -> Self {
         Reader {
-            input_file: input_file.to_owned(),
-            input_file_type: input_file_type.clone(),
+            input_file: input_file.path.to_owned(),
+            input_file_type: input_file.file_type.clone(),
         }
     }
     pub fn to_point_reader(&self) -> LasReader {

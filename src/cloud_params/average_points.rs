@@ -4,6 +4,7 @@ use rayon::iter::{ParallelBridge, ParallelIterator};
 use twox_hash::XxHash64;
 
 use crate::{
+    cli_new::input_params::block_params::BlockParams,
     common::Extent,
     io::Reader,
     voxel::{get_voxel_block_iterator, IntoVoxelKey},
@@ -15,7 +16,11 @@ pub fn get_average_points_in_voxel(
     block_size: usize,
     voxel_size: f64,
 ) -> f64 {
-    let block_iterator = get_voxel_block_iterator(reader, extent, 0, block_size);
+    let block_params = BlockParams {
+        overlap: 0,
+        size: block_size,
+    };
+    let block_iterator = get_voxel_block_iterator(reader, extent, block_params);
 
     let counter = block_iterator
         .par_bridge()

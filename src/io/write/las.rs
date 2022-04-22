@@ -1,7 +1,7 @@
 use std::{fs::File, io::BufWriter};
 
 use crate::{
-    cli::FileType,
+    cli_new::input_params::file::{File as OutputFile, FileType},
     cloud_params::CloudParams,
     voxel::{Irradiation, Point},
 };
@@ -44,16 +44,15 @@ impl WriteOutput for LasFileWriter {
 
 impl LasFileWriter {
     pub fn new(
-        output_file: &str,
-        output_file_type: &FileType,
+        output_file: &OutputFile,
         cloud_params: &CloudParams,
     ) -> Result<Self, Box<dyn Error>> {
-        let file = File::create(output_file)?;
+        let file = File::create(&output_file.path)?;
         let file = BufWriter::new(file);
 
         let mut builder = Builder::from((1, 2));
         builder.point_format = Format::new(0).unwrap();
-        builder.point_format.is_compressed = matches!(output_file_type, FileType::Laz);
+        builder.point_format.is_compressed = matches!(output_file.file_type, FileType::Laz);
         builder.point_format.extra_bytes = 32;
 
         let mut insolation_times_vlr = las::Vlr {

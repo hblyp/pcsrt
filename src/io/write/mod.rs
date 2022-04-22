@@ -1,9 +1,8 @@
 use std::error::Error;
 
 use crate::{
-    cli::FileType,
     cloud_params::CloudParams,
-    voxel::{Irradiation, Point, TranslatePoint, Translation, Voxel, VoxelGrid},
+    voxel::{Irradiation, Point, TranslatePoint, Translation, Voxel, VoxelGrid}, cli_new::input_params::file::{FileType, File},
 };
 
 use self::{las::LasFileWriter, ply::PlyFileWriter};
@@ -17,18 +16,18 @@ pub struct Writer {
 
 impl Writer {
     pub fn new(
-        output_file: &str,
-        output_file_type: &FileType,
+        output_file: &File,
+        output_ply_ascii: bool,
         cloud_params: &CloudParams,
     ) -> Result<Self, Box<dyn Error>> {
-        match output_file_type {
-            &FileType::Las | &FileType::Laz => {
-                let writer = LasFileWriter::new(output_file, output_file_type, cloud_params)?;
+        match output_file.file_type {
+            FileType::Las | FileType::Laz => {
+                let writer = LasFileWriter::new(&output_file, cloud_params)?;
                 let writer = Box::from(writer);
                 Ok(Writer { writer })
             }
-            &FileType::Ply | &FileType::BPly => {
-                let writer = PlyFileWriter::new(output_file, output_file_type, cloud_params)?; // todo
+            FileType::Ply => {
+                let writer = PlyFileWriter::new(&output_file.path, output_ply_ascii, cloud_params)?; // todo
                 let writer = Box::from(writer);
                 Ok(Writer { writer })
             }

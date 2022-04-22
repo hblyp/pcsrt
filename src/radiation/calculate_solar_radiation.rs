@@ -7,7 +7,7 @@ use super::illumination::{
 use super::radiation_components::get_irradiance;
 use super::radiation_components::VoxelIrradiance;
 use super::sun_position::get_sun_positions;
-use crate::cli::InputParams;
+use crate::cli_new::InputParams;
 use crate::voxel::Voxel;
 use crate::voxel::VoxelGrid;
 

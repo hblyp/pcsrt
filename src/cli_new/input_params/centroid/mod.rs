@@ -5,7 +5,7 @@ pub use parsers::parse_centroid;
 
 #[derive(Debug)]
 pub struct Centroid {
-    lat: f64,
-    lon: f64,
-    elevation: f64,
+    pub lat: f64,
+    pub lon: f64,
+    pub elevation: f64,
 }

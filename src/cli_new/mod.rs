@@ -7,7 +7,7 @@ use self::input_params::time_range::{parse_time_range, TimeRange};
 
 use clap::Parser;
 
-mod input_params;
+pub mod input_params;
 
 /// A tool for modeling solar radiation & insolation on point cloud data built in Rust.
 #[derive(Parser, Debug)]
@@ -47,7 +47,7 @@ pub struct InputParams {
 
     /// [<SIZE(int)>,<OVERLAP(int)>] If specified, the cloud will be processed sequentially in square blocks with defined overlaps (uses less RAM, takes longer).
     #[clap(short='b', long, parse(try_from_str=parse_block_params))]
-    pub process_in_blocks: Option<BlockParams>,
+    pub block_process_params: Option<BlockParams>,
 
     /// Input file (las/laz)
     #[clap(parse(try_from_os_str=parse_file))]

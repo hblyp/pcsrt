@@ -16,7 +16,7 @@ pub struct PlyFileWriter {
     writer: PlyWriter<DefaultElement>,
     file: BufWriter<File>,
     point_element: ElementDef,
-    file_type: FileType,
+    ascii: bool,
 }
 
 impl WriteOutput for PlyFileWriter {
@@ -46,18 +46,16 @@ impl WriteOutput for PlyFileWriter {
             "insolation_times".to_string(),
             Property::UInt(irradiation.illumination_count as u32),
         );
-        match self.file_type {
-            FileType::Ply => {
-                self.writer
-                    .write_ascii_element(&mut self.file, &ply_point, &self.point_element)?
-            }
-            FileType::BPly => self.writer.write_big_endian_element(
+        if self.ascii {
+            self.writer
+                .write_ascii_element(&mut self.file, &ply_point, &self.point_element)?;
+        } else {
+            self.writer.write_big_endian_element(
                 &mut self.file,
                 &ply_point,
                 &self.point_element,
-            )?,
-            _ => panic!("PlyFileWriter: invalid output file type"),
-        };
+            )?;
+        }
 
         Ok(())
     }
@@ -65,19 +63,19 @@ impl WriteOutput for PlyFileWriter {
 
 impl PlyFileWriter {
     pub fn new(
-        output_file: &str,
-        output_file_type: &FileType,
+        path: &str,
+        ascii: bool,
         cloud_params: &CloudParams,
     ) -> Result<Self, Box<dyn Error>> {
-        let file = File::create(output_file)?;
+        let file = File::create(path)?;
         let mut file = BufWriter::new(file);
         let writer: PlyWriter<DefaultElement> = PlyWriter::new();
         // crete a ply object
         let mut ply = Ply::<DefaultElement>::new();
-        let encoding = match *output_file_type {
-            FileType::BPly => Encoding::BinaryBigEndian,
-            FileType::Ply => Encoding::Ascii,
-            _ => panic!("PlyFileWriter: invalid output file type"),
+        let encoding = if ascii {
+            Encoding::Ascii
+        } else {
+            Encoding::BinaryBigEndian
         };
 
         ply.header.encoding = encoding;
@@ -116,7 +114,7 @@ impl PlyFileWriter {
             file,
             point_element,
             writer,
-            file_type: output_file_type.clone(),
+            ascii,
         };
         Ok(ply_writer)
     }

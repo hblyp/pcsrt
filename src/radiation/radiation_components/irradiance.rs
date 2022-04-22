@@ -1,6 +1,6 @@
 use std::f64::consts::PI;
 
-use crate::cli::InputParams;
+use crate::cli_new::InputParams;
 use crate::radiation::sun_position::SunPosition;
 use crate::voxel::Voxel;
 
@@ -24,7 +24,7 @@ pub fn get_irradiance<'a>(
 
     let solar_altitude = sun_position.altitude;
     let solar_azimuth = sun_position.azimuth;
-    let elevation = input_params.centroid_elev;
+    let elevation = input_params.centroid.elevation;
     let solar_distance_variation_correction = solar_distance_variation_correction(no_of_day);
 
     let zenith_angle = (PI / 2.) - solar_altitude;

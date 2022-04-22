@@ -1,28 +1,27 @@
 use std::f64::consts::PI;
 
 // use super::calc_solar_position;
-use crate::cli::InputParams;
 use chrono::{DateTime, Utc};
 use nalgebra::{Rotation, Rotation3};
 use spa::calc_solar_position;
 
+use crate::cli_new::InputParams;
+
 pub fn get_sun_positions(
     InputParams {
-        end_time,
-        start_time,
+        time_range,
         step_mins,
-        centroid_lat,
-        centroid_lon,
+        centroid,
         horizon,
         ..
     }: &InputParams,
 ) -> Vec<SunPosition> {
-    let duration_mins = (*end_time - *start_time).num_minutes() / *step_mins as i64;
+    let duration_mins = (time_range.to - time_range.from).num_minutes() / *step_mins as i64;
     (0..duration_mins)
         .map(|minute| {
             let duration = chrono::Duration::minutes(minute);
-            let time = *start_time + (duration * *step_mins as i32);
-            let sol_pos = calc_solar_position(time, *centroid_lat, *centroid_lon).unwrap();
+            let time = time_range.from + (duration * *step_mins as i32);
+            let sol_pos = calc_solar_position(time, centroid.lat, centroid.lon).unwrap();
             let altitude = (90. - sol_pos.zenith_angle).to_radians();
             let azimuth = sol_pos.azimuth.to_radians();
             if horizon.is_visible(azimuth, altitude) {
