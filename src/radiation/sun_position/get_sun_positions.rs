@@ -13,6 +13,7 @@ pub fn get_sun_positions(
         step_mins,
         centroid_lat,
         centroid_lon,
+        horizon,
         ..
     }: &InputParams,
 ) -> Vec<SunPosition> {
@@ -24,7 +25,7 @@ pub fn get_sun_positions(
             let sol_pos = calc_solar_position(time, *centroid_lat, *centroid_lon).unwrap();
             let altitude = (90. - sol_pos.zenith_angle).to_radians();
             let azimuth = sol_pos.azimuth.to_radians();
-            if altitude > 0. {
+            if horizon.is_visible(azimuth, altitude) {
                 // todo elevation mask (pass condition closure or smth)
                 let roll = (PI / 2.) + altitude;
                 let yaw = azimuth - PI;

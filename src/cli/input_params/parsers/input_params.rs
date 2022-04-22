@@ -6,7 +6,7 @@ use crate::{
     cli::input_params::{
         arg_names::get_arg_names, errors::InputParamsParseError, validators::ValidateCoords,
     },
-    common::Linke,
+    common::{Horizon, Linke},
 };
 
 use super::{parse_file_type, FileType};
@@ -24,6 +24,7 @@ pub struct InputParams {
     pub step_mins: f64,
     pub voxel_size: Option<f64>,
     pub average_points_in_voxel: f64,
+    pub horizon: Horizon,
     pub linke_turbidity_factor: Linke,
     pub block_size: usize,
     pub block_overlap: usize,
@@ -87,6 +88,41 @@ pub fn parse_input_params(args: ArgMatches) -> Result<InputParams, InputParamsPa
             4.
         };
 
+    let horizon: Horizon = {
+        let flat_horizon = Horizon {
+            angle_step: 360,
+            horizon_height: vec![0.],
+            is_flat: true,
+        };
+        if args.value_of(arg_names.linke_turbidity_factor).is_none() {
+            flat_horizon
+        } else {
+            let mut horizon_height = args
+                .value_of(arg_names.linke_turbidity_factor)
+                .unwrap()
+                .split(",")
+                .map(|str| str.parse::<f64>().unwrap())
+                .collect::<Vec<f64>>();
+
+            if horizon_height.len() < 2 {
+                flat_horizon
+            } else {
+                let angle_step = horizon_height[0] as usize;
+                horizon_height.remove(0);
+
+                let is_flat = horizon_height[0] == 0.;
+
+                Horizon {
+                    angle_step,
+                    horizon_height,
+                    is_flat,
+                }
+            }
+        }
+    };
+
+    println!("{:?}", horizon);
+
     let linke_turbidity_factor: Linke = {
         let linke_str = args.value_of(arg_names.linke_turbidity_factor).unwrap();
         let single_re = Regex::new(r"^\d+\.{0,1}\d*$").unwrap();
@@ -137,6 +173,7 @@ pub fn parse_input_params(args: ArgMatches) -> Result<InputParams, InputParamsPa
         step_mins,
         voxel_size,
         average_points_in_voxel,
+        horizon,
         linke_turbidity_factor,
         block_size,
         block_overlap,

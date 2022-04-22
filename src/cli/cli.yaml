@@ -55,6 +55,12 @@ args:
           long: step_mins
           takes_value: true
           required: true
+    - horizon:
+          help: Horizon height used to take in account surrounding horizon (hills) when modeling solar radiation in smaller areas. Comma separatet floats with exception of first value, which represents angle step starting from north e.g. 30,17.4,24.5,5.4,...
+          value_name: horizon
+          long: horizon
+          takes_value: true
+          required: false
     - linke_turbidity_factor:
           help: Linke turbidity factor - single float or 12 (monthly) float values separated by comma
           value_name: linke
