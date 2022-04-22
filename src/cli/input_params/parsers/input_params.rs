@@ -121,8 +121,6 @@ pub fn parse_input_params(args: ArgMatches) -> Result<InputParams, InputParamsPa
         }
     };
 
-    println!("{:?}", horizon);
-
     let linke_turbidity_factor: Linke = {
         let linke_str = args.value_of(arg_names.linke_turbidity_factor).unwrap();
         let single_re = Regex::new(r"^\d+\.{0,1}\d*$").unwrap();

@@ -2,7 +2,7 @@ use std::error::Error;
 use std::fmt;
 use std::fmt::Display;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum FileType {
     Las,
     Laz,
