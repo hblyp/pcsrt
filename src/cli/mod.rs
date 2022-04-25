@@ -5,18 +5,15 @@ use self::input_params::horizon::{parse_horizon, Horizon};
 use self::input_params::linke::{parse_linke, Linke};
 use self::input_params::time_range::{parse_time_range, TimeRange};
 
-use clap::Parser;
+use clap::{AppSettings, Parser};
 
 pub mod input_params;
 
 /// A tool for modeling solar radiation & insolation on point cloud data built in Rust.
 #[derive(Parser, Debug)]
 #[clap(name="Point Cloud Solar Radiation Tool", author, version, about, long_about = None)]
+#[clap(global_setting(AppSettings::DeriveDisplayOrder))]
 pub struct InputParams {
-    /// When using ply output, specify if using text or binary format
-    #[clap(long)]
-    pub output_ply_ascii: bool,
-
     /// [<LAT(decimal)>,<LON(decimal)>,<ELEVATION(decimal)>] Point cloud centroid geographical coordinates & ellipsoidal elevation
     #[clap(short, long, parse(try_from_str=parse_centroid))]
     pub centroid: Centroid,
@@ -29,25 +26,29 @@ pub struct InputParams {
     #[clap(short, long)]
     pub step_mins: f64,
 
-    /// [<decimal>] Size of the voxel in meters
-    #[clap(short, long)]
-    pub voxel_size: Option<f64>,
-
-    /// [<decimal>] Instead of specifing voxel size, average points in voxel can be used. (if not specified, 4 points in average will be used)
-    #[clap(short='p', long, default_value="4")]
-    pub average_points_in_voxel: f64,
+    /// [<SINGLE_LINKE(decimal)>] or [<MONTHLY_LINKE(12 comma separated decimals)>] Linke turbidity factor - single value or 12 (monthly) values
+    #[clap(short, long, parse(try_from_str=parse_linke))]
+    pub linke_turbidity_factor: Linke,
 
     /// [<ANGLE_STEP(int)>,<ELEVATION(comma separated decimals - horizon elevation values)>] Horizon height used to take in account surrounding horizon (hills) when modeling solar radiation in smaller areas. Starts from north.
     #[clap(short, long, parse(try_from_str=parse_horizon), default_value="360,0")]
     pub horizon: Horizon,
 
-    /// [<SINGLE_LINKE(decimal)>] or [<MONTHLY_LINKE(12 comma separated decimals)>] Linke turbidity factor - single value or 12 (monthly) values
-    #[clap(short, long, parse(try_from_str=parse_linke))]
-    pub linke_turbidity_factor: Linke,
+    /// [<decimal>] Size of the voxel in meters
+    #[clap(short, long)]
+    pub voxel_size: Option<f64>,
+
+    /// [<decimal>] Instead of specifing voxel size, average points in voxel can be used. (if not specified, 4 points in average will be used)
+    #[clap(short = 'p', long, default_value = "4")]
+    pub average_points_in_voxel: f64,
 
     /// [<SIZE(int)>,<OVERLAP(int)>] If specified, the cloud will be processed sequentially in square blocks with defined overlaps (uses less RAM, takes longer).
     #[clap(short='b', long, parse(try_from_str=parse_block_params))]
     pub block_process_params: Option<BlockParams>,
+
+    /// When using ply output, specify if using text or binary format
+    #[clap(long)]
+    pub output_ply_ascii: bool,
 
     /// Input file (las/laz)
     #[clap(parse(try_from_os_str=parse_file))]
