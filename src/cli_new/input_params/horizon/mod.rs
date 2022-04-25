@@ -1,7 +1,5 @@
 mod parsers;
 
-use std::fmt::{Display, Formatter, Result};
-
 pub use self::parsers::parse_horizon;
 
 #[derive(Debug)]

@@ -1,16 +1,10 @@
-#[macro_use]
 extern crate clap;
 
-use clap::Parser;
 use log::info;
-use core::panic;
 use std::{env, error::Error};
-
-use crate::cli_new::InputParams;
 
 use self::pcsrt::pcsrt;
 
-mod cli;
 mod cli_new;
 mod cloud_params;
 mod common;

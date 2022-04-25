@@ -6,7 +6,6 @@ use ply_rs::writer::Writer as PlyWriter;
 use std::error::Error;
 use std::{fs::File, io::BufWriter};
 
-use crate::cli::FileType;
 use crate::cloud_params::CloudParams;
 use crate::voxel::{Irradiation, Point};
 
