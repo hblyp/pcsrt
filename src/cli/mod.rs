@@ -17,11 +17,11 @@ pub struct InputParams {
     #[clap(long)]
     pub output_ply_ascii: bool,
 
-    /// [<LAT(float)>,<LON(float)>,<ELEVATION(float)>] Point cloud centroid geographical coordinates & ellipsoidal elevation
+    /// [<LAT(decimal)>,<LON(decimal)>,<ELEVATION(decimal)>] Point cloud centroid geographical coordinates & ellipsoidal elevation
     #[clap(short, long, parse(try_from_str=parse_centroid))]
     pub centroid: Centroid,
 
-    /// [<FROM(2020-01-01T12:00:00.000Z)>,<TO(2020-03-23T18:00:00.000Z)>]Time range in RFC3339 format
+    /// [<FROM(2020-01-01T12:00:00.000Z)>,<TO(2020-03-23T18:00:00.000Z)>] Time range in RFC3339 format
     #[clap(short, long, parse(try_from_str=parse_time_range))]
     pub time_range: TimeRange,
 
@@ -29,19 +29,19 @@ pub struct InputParams {
     #[clap(short, long)]
     pub step_mins: f64,
 
-    /// [<float>] Size of the voxel in meters
+    /// [<decimal>] Size of the voxel in meters
     #[clap(short, long)]
     pub voxel_size: Option<f64>,
 
-    /// [<float>] Instead of specifing voxel size, average points in voxel can be used. (if not specified, 4 points in average will be used)
+    /// [<decimal>] Instead of specifing voxel size, average points in voxel can be used. (if not specified, 4 points in average will be used)
     #[clap(short='p', long, default_value="4")]
     pub average_points_in_voxel: f64,
 
-    /// [<ANGLE_STEP(int)>,<ELEVATION(comma separated floats - horizon elevation values)>] Horizon height used to take in account surrounding horizon (hills) when modeling solar radiation in smaller areas. Starts from north.
+    /// [<ANGLE_STEP(int)>,<ELEVATION(comma separated decimals - horizon elevation values)>] Horizon height used to take in account surrounding horizon (hills) when modeling solar radiation in smaller areas. Starts from north.
     #[clap(short, long, parse(try_from_str=parse_horizon), default_value="360,0")]
     pub horizon: Horizon,
 
-    /// [<SINGLE_LINKE(float)>] or [<MONTHLY_LINKE(12 comma separated floats)>] Linke turbidity factor - single value or 12 (monthly) values
+    /// [<SINGLE_LINKE(decimal)>] or [<MONTHLY_LINKE(12 comma separated decimals)>] Linke turbidity factor - single value or 12 (monthly) values
     #[clap(short, long, parse(try_from_str=parse_linke))]
     pub linke_turbidity_factor: Linke,
 
