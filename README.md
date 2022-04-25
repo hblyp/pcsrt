@@ -20,7 +20,7 @@ pcsrt addresses the issue of solar radiation modeling in 3D space using generic 
 
 ## Usage
 
-pcsrt is a command line tool that requires at least the point cloud centroid position, Linke turbidity factor and time period to be specified in addition to input and output file paths. However, additional optional parameters can be used to modify the way in which pcsrt processes the point cloud. The most "sensitive" params are `linke-turbidity-factor` which has direct impact on output solar radiation values and `voxel-size` that specifies the detail in which the cloud is processed.
+pcsrt is a command line tool that requires at least the point cloud centroid position, Linke turbidity factor and time period to be specified in addition to input and output file paths. However, additional optional parameters can be used to modify the way in which pcsrt processes the point cloud. The most "sensitive" params are `--linke-turbidity-factor` which has direct impact on output solar radiation values and `--voxel-size` that specifies the detail in which the cloud is processed.
 
 Output point cloud contains irradiation values [W.h/m^2] - `global_irradiance`, `beam_component`, `diffuse_component` and the `illumination_count` in the time period with the time step. 
 
