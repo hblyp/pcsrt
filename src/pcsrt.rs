@@ -8,7 +8,7 @@ use crate::{
     cloud_params::get_cloud_params,
     io::{Reader, Writer},
     radiation::calculate_solar_radiation,
-    voxel::{build_voxel_grid, calculate_normals, get_voxel_block_iterator, Voxel, VoxelGrid},
+    voxel::{build_voxel_grid, build_normals, get_voxel_block_iterator, Voxel, VoxelGrid},
 };
 
 pub fn pcsrt() -> Result<(), Box<dyn Error>> {
@@ -50,8 +50,8 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
         let mut voxel_grid: VoxelGrid<Voxel> =
             build_voxel_grid(block.points, cloud_params.voxel_size)?;
 
-        info!("Calculating normals for voxels");
-        let failed_normals = calculate_normals(&mut voxel_grid)?;
+        info!("Building normals for voxels");
+        let failed_normals = build_normals(&mut voxel_grid)?;
 
         if failed_normals >= 0 {
             warn!("Failed to construct normals on {} voxels.", failed_normals);

@@ -18,7 +18,7 @@ pub fn get_sun_positions(
 ) -> Vec<SunPosition> {
     let duration_mins = (time_range.to - time_range.from).num_minutes() / *step_mins as i64;
     (0..duration_mins)
-        .map(|minute| {
+        .flat_map(|minute| {
             let duration = chrono::Duration::minutes(minute);
             let time = time_range.from + (duration * *step_mins as i32);
             let sol_pos = calc_solar_position(time, centroid.lat, centroid.lon).unwrap();
@@ -42,7 +42,6 @@ pub fn get_sun_positions(
                 None
             }
         })
-        .flatten()
         .collect()
 }
 

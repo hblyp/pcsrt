@@ -4,7 +4,7 @@ use twox_hash::XxHash64;
 
 use super::{normal_from_points, Key, NormalVector, Point, Voxel, VoxelGrid};
 
-pub fn calculate_normals(voxel_grid: &mut VoxelGrid<Voxel>) -> Result<i32, Box<dyn Error>> {
+pub fn build_normals(voxel_grid: &mut VoxelGrid<Voxel>) -> Result<i32, Box<dyn Error>> {
     let mut failed_counter = 0;
 
     let normals = voxel_grid

@@ -22,7 +22,7 @@ impl Writer {
     ) -> Result<Self, Box<dyn Error>> {
         match output_file.file_type {
             FileType::Las | FileType::Laz => {
-                let writer = LasFileWriter::new(&output_file, cloud_params)?;
+                let writer = LasFileWriter::new(output_file, cloud_params)?;
                 let writer = Box::from(writer);
                 Ok(Writer { writer })
             }

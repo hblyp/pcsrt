@@ -3,7 +3,7 @@ use clap::Error;
 
 pub fn parse_horizon(input: &str) -> Result<Horizon, Error> {
     let mut horizon_height = input
-        .split(",")
+        .split(',')
         .map(|str| str.parse::<f64>().unwrap())
         .collect::<Vec<f64>>();
 
