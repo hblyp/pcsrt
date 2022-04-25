@@ -1,7 +1,7 @@
 use std::{fs::File, io::BufWriter};
 
 use crate::{
-    cli_new::input_params::file::{File as OutputFile, FileType},
+    cli::input_params::file::{File as OutputFile, FileType},
     cloud_params::CloudParams,
     voxel::{Irradiation, Point},
 };

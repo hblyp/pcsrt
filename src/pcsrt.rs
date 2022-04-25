@@ -4,7 +4,7 @@ use clap::Parser;
 use log::{info, warn};
 
 use crate::{
-    cli_new::InputParams,
+    cli::InputParams,
     cloud_params::get_cloud_params,
     io::{Reader, Writer},
     radiation::calculate_solar_radiation,

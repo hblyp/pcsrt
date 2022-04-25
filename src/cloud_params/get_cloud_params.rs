@@ -2,7 +2,7 @@ use std::error::Error;
 
 use las::Read;
 
-use crate::{cli_new::InputParams, common::Extent, io::Reader};
+use crate::{cli::InputParams, common::Extent, io::Reader};
 
 use super::{
     average_points::get_average_points_in_voxel, voxel_size::get_voxel_size_and_average_points,

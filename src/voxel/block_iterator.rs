@@ -1,5 +1,5 @@
 use crate::{
-    cli_new::input_params::block_params::BlockParams,
+    cli::input_params::block_params::BlockParams,
     common::Extent,
     io::Reader,
     voxel::{GetCoords, Point, TranslatePoint, Translation, TrimDecimals},

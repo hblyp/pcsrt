@@ -3,7 +3,7 @@ use ::las::Reader as LasReader;
 use std::fs::File;
 use std::io::BufReader;
 
-use crate::cli_new::input_params::file::{File as InputFile, FileType};
+use crate::cli::input_params::file::{File as InputFile, FileType};
 
 mod las;
 mod ply;

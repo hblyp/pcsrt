@@ -2,7 +2,7 @@ use std::error::Error;
 
 use crate::{
     cloud_params::CloudParams,
-    voxel::{Irradiation, Point, TranslatePoint, Translation, Voxel, VoxelGrid}, cli_new::input_params::file::{FileType, File},
+    voxel::{Irradiation, Point, TranslatePoint, Translation, Voxel, VoxelGrid}, cli::input_params::file::{FileType, File},
 };
 
 use self::{las::LasFileWriter, ply::PlyFileWriter};

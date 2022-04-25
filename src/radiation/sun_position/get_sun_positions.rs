@@ -5,7 +5,7 @@ use chrono::{DateTime, Utc};
 use nalgebra::{Rotation, Rotation3};
 use spa::calc_solar_position;
 
-use crate::cli_new::InputParams;
+use crate::cli::InputParams;
 
 pub fn get_sun_positions(
     InputParams {

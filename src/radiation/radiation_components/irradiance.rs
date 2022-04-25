@@ -1,6 +1,6 @@
 use std::f64::consts::PI;
 
-use crate::cli_new::InputParams;
+use crate::cli::InputParams;
 use crate::radiation::sun_position::SunPosition;
 use crate::voxel::Voxel;
 

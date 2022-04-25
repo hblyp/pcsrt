@@ -5,7 +5,7 @@ use std::{env, error::Error};
 
 use self::pcsrt::pcsrt;
 
-mod cli_new;
+mod cli;
 mod cloud_params;
 mod common;
 mod io;
