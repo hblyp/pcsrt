@@ -34,11 +34,11 @@ pub fn get_diffuse_irradiance(
         a_0 + a_1 * solar_altitude.sin() + a_2 * solar_altitude.sin().powf(2.)
     };
 
-    let diffuse_radiation = SOLAR_CONSTANT
+    let diffuse_irradiance = SOLAR_CONSTANT
         * solar_distance_variation_correction
         * diffuse_transmission_function
         * diffuse_anglular_function;
-    let slope: f64 = normal_vector.angle(&Vector3::from([normal_vector[0], normal_vector[1], 1.]));
+    let slope: f64 = normal_vector.angle(&Vector3::from([normal_vector[0], normal_vector[1], 1.])); // TODO
 
     if let Some(beam_radiation) = beam_component {
         let modulating_function_kb = beam_radiation / SOLAR_CONSTANT
@@ -48,11 +48,11 @@ pub fn get_diffuse_irradiance(
         let n = 0.00263 - 0.712 * modulating_function_kb - 0.6883 * modulating_function_kb.powf(2.);
 
         if solar_altitude.to_degrees() > 5.7 {
-            diffuse_radiation
+            diffuse_irradiance
                 * (diffuse_function(slope, n) * (1. - modulating_function_kb)
                     + modulating_function_kb * incline_angle.sin() / solar_altitude.sin())
         } else {
-            diffuse_radiation
+            diffuse_irradiance
                 * (slope / 2.).cos().powf(2.)
                 * (1. + modulating_function_kb * (slope / 2.).sin().powf(3.))
                 * (1.
@@ -61,7 +61,7 @@ pub fn get_diffuse_irradiance(
                         * ((PI / 2.) - solar_altitude).sin().powf(3.))
         }
     } else {
-        diffuse_radiation * diffuse_function(slope, 0.25227)
+        diffuse_irradiance * diffuse_function(slope, 0.25227)
     }
 }
 

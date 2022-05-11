@@ -27,9 +27,9 @@ pub fn get_rotated_voxel_key_pair_iterator<'a>(
             sun_position.rotation_x * sun_position.rotation_z * voxel_key_as_coords;
 
         let rotated_key = Key {
-            x: (rotated_voxel_coords.x / (0.5)).round() as i64, // todo: 0.5
-            y: (rotated_voxel_coords.y / (0.5)).round() as i64,
-            z: (rotated_voxel_coords.z / (0.5)).round() as i64,
+            x: (rotated_voxel_coords.x * 2.).round() as i64, // todo: 0.5
+            y: (rotated_voxel_coords.y * 2.).round() as i64,
+            z: (rotated_voxel_coords.z * 2.).round() as i64,
         };
 
         RotatedVoxelKeyPair {
