@@ -34,7 +34,7 @@ pcsrt [OPTIONS] --centroid <CENTROID> --time-range <TIME_RANGE> --step-mins <STE
 
 | Param                         | Type/Format                                                         | Required | Description                                                                        | 
 | ----------------------------- | ------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------- |
-| -c, --centroid                | <LAT(float)>,<LON(float)>,<ELEVATION(float)>                        | yes      | Point cloud centroid geographical coordinates & ellipsoidal elevation |
+| -c, --centroid                | <LAT(float)>,<LON(float)>,<ELEVATION(float)>                        | yes      | Point cloud centroid geographical coordinates & elevation |
 | -t, --time-range              | <FROM(2020-01-01T12:00:00.000Z)>,<TO(2020-03-23T18:00:00.000Z)>     | yes      | Time range in RFC3339 format |
 | -s, --step-mins               | int                                                                 | yes      | Step in minutes used in time range |
 | -l, --linke-turbidity-factor  | <SINGLE_LINKE(float)> or <MONTHLY_LINKE(12 comma separated floats)> | yes      | Linke turbidity factor used in [ESRA  solar radiation model](https://www.sciencedirect.com/science/article/pii/S0038092X99000559) (single value or 12 monthly values) |
@@ -42,7 +42,7 @@ pcsrt [OPTIONS] --centroid <CENTROID> --time-range <TIME_RANGE> --step-mins <STE
 | -v, --voxel-size              | decimal                                                             | no       | Size of the voxel in meters |
 | -p, --average-points-in-voxel | decimal                                                             | no       | Instead of specifing voxel size, average points in voxel can be used. [default: 4] |
 | -b, --block-process-params    | <SIZE(int)>,<OVERLAP(int)>                                          | no       | If specified (meters), pcsrt will divide the cloud in square blocks and process them sequentially. This parameter is useful if the whole cloud does not fit in the memory. |
-| --output_ply_ascii            | flag                                                                | no       | When using ply output, specify if using binary (default) or text format |
+| --output-ply-ascii            | flag                                                                | no       | When using ply output, specify if using binary (default) or text format |
 
 ## License
 PCSRT is [MIT licensed](/LICENSE).

@@ -14,7 +14,7 @@ pub mod input_params;
 #[clap(name="Point Cloud Solar Radiation Tool", author, version, about, long_about = None)]
 #[clap(global_setting(AppSettings::DeriveDisplayOrder))]
 pub struct InputParams {
-    /// [<LAT(decimal)>,<LON(decimal)>,<ELEVATION(decimal)>] Point cloud centroid geographical coordinates & ellipsoidal elevation
+    /// [<LAT(decimal)>,<LON(decimal)>,<ELEVATION(decimal)>] Point cloud centroid geographical coordinates & elevation
     #[clap(short, long, parse(try_from_str=parse_centroid))]
     pub centroid: Centroid,
 
