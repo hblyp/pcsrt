@@ -3,10 +3,10 @@ use std::{fs::File, io::BufWriter};
 use crate::{
     cli::input_params::file::{File as OutputFile, FileType},
     cloud_params::CloudParams,
-    voxel::{Irradiation, Point},
+    voxel::{Irradiation, NormalVector, Point},
 };
 use las::{
-    point::Format, Builder, Point as LasPoint, Transform, Vector, Write, Writer as LasWriter,
+    point::Format, Builder, Color, Point as LasPoint, Transform, Vector, Write, Writer as LasWriter,
 };
 
 use super::WriteOutput;
@@ -21,6 +21,7 @@ impl WriteOutput for LasFileWriter {
         &mut self,
         point: Point,
         irradiation: &Irradiation,
+        normal_vector: &NormalVector,
     ) -> Result<(), Box<dyn Error>> {
         let extra_bytes = vec![
             irradiation.global_irradiance,
@@ -28,12 +29,18 @@ impl WriteOutput for LasFileWriter {
             irradiation.diffuse_component,
             irradiation.illumination_count as f64,
         ];
+        let normal_as_rgb = Color {
+            red: ((0.5 * normal_vector.x + 0.5) * 255.).round() as u16,
+            green: ((0.5 * normal_vector.y + 0.5) * 255.).round() as u16,
+            blue: ((0.5 * normal_vector.z + 0.5) * 255.).round() as u16,
+        };
         let extra_bytes = to_byte_slice(&extra_bytes).to_vec();
         let point = LasPoint {
             x: point.x,
             y: point.y,
             z: point.z,
             extra_bytes,
+            color: Some(normal_as_rgb),
             ..Default::default()
         };
 
@@ -51,7 +58,7 @@ impl LasFileWriter {
         let file = BufWriter::new(file);
 
         let mut builder = Builder::from((1, 2));
-        builder.point_format = Format::new(0).unwrap();
+        builder.point_format = Format::new(2).unwrap();
         builder.point_format.is_compressed = matches!(output_file.file_type, FileType::Laz);
         builder.point_format.extra_bytes = 32;
 

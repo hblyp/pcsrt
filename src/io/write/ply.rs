@@ -7,7 +7,7 @@ use std::error::Error;
 use std::{fs::File, io::BufWriter};
 
 use crate::cloud_params::CloudParams;
-use crate::voxel::{Irradiation, Point};
+use crate::voxel::{Irradiation, NormalVector, Point};
 
 use super::WriteOutput;
 
@@ -23,6 +23,7 @@ impl WriteOutput for PlyFileWriter {
         &mut self,
         point: Point,
         irradiation: &Irradiation,
+        _normal_vector: &NormalVector,
     ) -> Result<(), Box<dyn Error>> {
         let mut ply_point = DefaultElement::new();
 

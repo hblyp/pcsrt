@@ -51,9 +51,9 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
             build_voxel_grid(block.points, cloud_params.voxel_size)?;
 
         info!("Building normals for voxels");
-        let failed_normals = build_normals(&mut voxel_grid)?;
+        let failed_normals = build_normals(&mut voxel_grid, cloud_params.average_points_in_voxel)?;
 
-        if failed_normals >= 0 {
+        if failed_normals > 0 {
             warn!("Failed to construct normals on {} voxels.", failed_normals);
         }
 

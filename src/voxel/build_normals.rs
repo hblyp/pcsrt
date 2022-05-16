@@ -4,7 +4,10 @@ use twox_hash::XxHash64;
 
 use super::{normal_from_points, Key, NormalVector, Point, Voxel, VoxelGrid};
 
-pub fn build_normals(voxel_grid: &mut VoxelGrid<Voxel>) -> Result<i32, Box<dyn Error>> {
+pub fn build_normals(
+    voxel_grid: &mut VoxelGrid<Voxel>,
+    average_points_in_voxel: f64,
+) -> Result<i32, Box<dyn Error>> {
     let mut failed_counter = 0;
 
     let normals = voxel_grid
@@ -16,7 +19,13 @@ pub fn build_normals(voxel_grid: &mut VoxelGrid<Voxel>) -> Result<i32, Box<dyn E
                 z: key.2,
             };
 
-            let adjacent_points = search_for_adjacent_points(voxel_grid, &key, 5, 3);
+            let min_points = if average_points_in_voxel < 4f64 {
+                4
+            } else {
+                average_points_in_voxel as usize
+            };
+
+            let adjacent_points = search_for_adjacent_points(voxel_grid, &key, 5, min_points);
 
             let normal = normal_from_points(&adjacent_points);
 

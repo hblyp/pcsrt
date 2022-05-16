@@ -1,8 +1,9 @@
 use std::error::Error;
 
 use crate::{
+    cli::input_params::file::{File, FileType},
     cloud_params::CloudParams,
-    voxel::{Irradiation, Point, TranslatePoint, Translation, Voxel, VoxelGrid}, cli::input_params::file::{FileType, File},
+    voxel::{Irradiation, NormalVector, Point, TranslatePoint, Translation, Voxel, VoxelGrid},
 };
 
 use self::{las::LasFileWriter, ply::PlyFileWriter};
@@ -43,7 +44,8 @@ impl Writer {
 
             for mut point in voxel.points.into_iter().filter(|point| !point.overlap) {
                 point.translate_rev(translation);
-                self.write_point(point, &irradiation).unwrap();
+                self.write_point(point, &irradiation, &voxel.normal_vector)
+                    .unwrap();
             }
         }
         Ok(())
@@ -55,8 +57,9 @@ impl WriteOutput for Writer {
         &mut self,
         point: Point,
         irradiation: &Irradiation,
+        normal_vector: &NormalVector,
     ) -> Result<(), Box<dyn Error>> {
-        self.writer.write_point(point, irradiation)
+        self.writer.write_point(point, irradiation, normal_vector)
     }
 }
 
@@ -65,5 +68,6 @@ pub trait WriteOutput {
         &mut self,
         point: Point,
         irradiation: &Irradiation,
+        normal_vector: &NormalVector,
     ) -> Result<(), Box<dyn Error>>;
 }
