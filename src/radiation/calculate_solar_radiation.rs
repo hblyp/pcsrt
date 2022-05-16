@@ -24,33 +24,28 @@ pub fn calculate_solar_radiation(voxel_grid: &VoxelGrid<Voxel>, input_params: &I
             if let Some(voxel_in_shadow) =
                 voxel_illumination_map.get_voxel_in_shadow(rot_voxel_key_pair)
             {
-                let irradiance = get_irradiance(
-                    input_params,
-                    voxel_in_shadow,
-                    sun_position,
-                    true,
-                );
+                let irradiance = get_irradiance(input_params, voxel_in_shadow, sun_position, true);
 
-                update_global_irradiance(voxel_in_shadow, &irradiance, true);
+                update_global_irradiance(voxel_in_shadow, &irradiance, true, sun_position.step_coef);
             }
         }
 
         for (_z, illuminated_voxel) in voxel_illumination_map.borrow_mut().values() {
-            let irradiance = get_irradiance(
-                input_params,
-                illuminated_voxel,
-                sun_position,
-                false,
-            );
-            update_global_irradiance(illuminated_voxel, &irradiance, false);
+            let irradiance = get_irradiance(input_params, illuminated_voxel, sun_position, false);
+            update_global_irradiance(illuminated_voxel, &irradiance, false, sun_position.step_coef);
         }
     });
 }
 
-fn update_global_irradiance(voxel: &Voxel, irradiance: &VoxelIrradiance, in_shadow: bool) {
+fn update_global_irradiance(
+    voxel: &Voxel,
+    irradiance: &VoxelIrradiance,
+    in_shadow: bool,
+    step_coef: f64,
+) {
     let mut irradiation = voxel.irradiation.write().unwrap();
-    irradiation.global_irradiance += irradiance.global_irradiance;
-    irradiation.beam_component += irradiance.beam_component;
-    irradiation.diffuse_component += irradiance.diffuse_component;
-    irradiation.illumination_count += if in_shadow { 0 } else { 1 };
+    irradiation.global_irradiance += irradiance.global_irradiance * step_coef;
+    irradiation.beam_component += irradiance.beam_component * step_coef;
+    irradiation.diffuse_component += irradiance.diffuse_component * step_coef;
+    irradiation.illumination_count += if in_shadow { 0. } else { 1. * step_coef };
 }

@@ -27,7 +27,7 @@ impl WriteOutput for LasFileWriter {
             irradiation.global_irradiance,
             irradiation.beam_component,
             irradiation.diffuse_component,
-            irradiation.illumination_count as f64,
+            irradiation.illumination_count,
         ];
         let normal_as_rgb = Color {
             red: ((0.5 * normal_vector.x + 0.5) * 255.).round() as u16,

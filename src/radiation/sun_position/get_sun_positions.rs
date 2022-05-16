@@ -1,11 +1,12 @@
-use std::f64::consts::PI;
-
 // use super::calc_solar_position;
-use chrono::{DateTime, Utc};
+use std::f64::consts::PI;
+use chrono::{DateTime, Datelike, Duration, Utc};
 use nalgebra::{Rotation, Rotation3};
 use spa::calc_solar_position;
 
-use crate::cli::InputParams;
+use crate::cli::{input_params::centroid::Centroid, InputParams};
+
+use super::{calc_sunrise_and_set, SunriseSunset};
 
 pub fn get_sun_positions(
     InputParams {
@@ -16,39 +17,141 @@ pub fn get_sun_positions(
         ..
     }: &InputParams,
 ) -> Vec<SunPosition> {
-    let duration_mins = (time_range.to - time_range.from).num_minutes() / *step_mins as i64;
-    (0..duration_mins)
-        .flat_map(|minute| {
-            let duration = chrono::Duration::minutes(minute);
-            let time = time_range.from + (duration * *step_mins as i32);
-            let sol_pos = calc_solar_position(time, centroid.lat, centroid.lon).unwrap();
-            let altitude = (90. - sol_pos.zenith_angle).to_radians();
-            let azimuth = sol_pos.azimuth.to_radians();
-            if horizon.is_visible(azimuth, altitude) {
-                // todo elevation mask (pass condition closure or smth)
-                let roll = (PI / 2.) + altitude;
-                let yaw = azimuth - PI;
+    let iter =
+        SunPositionTimeRangeIterator::new(time_range.from, time_range.to, centroid, *step_mins);
+    let mut sun_positions: Vec<SunPosition> = vec![];
 
-                let rotation_x = Rotation3::from_euler_angles(roll, 0.0, 0.0);
-                let rotation_z = Rotation3::from_euler_angles(0.0, 0.0, yaw);
-                Some(SunPosition {
-                    rotation_x,
-                    rotation_z,
-                    azimuth,
-                    altitude,
-                    time,
-                })
-            } else {
-                None
-            }
-        })
-        .collect()
+    for sun_pos in iter {
+        if horizon.is_visible(sun_pos.azimuth, sun_pos.altitude) {
+            sun_positions.push(sun_pos)
+        }
+    }
+
+    sun_positions
 }
 
+pub struct SunPositionTimeRangeIterator<'a> {
+    to: DateTime<Utc>,
+    centroid: &'a Centroid,
+    step_mins: f64,
+    previous_time: Option<DateTime<Utc>>,
+    current_time: DateTime<Utc>,
+    sunrise_sunset: Option<SunriseSunset>,
+}
+
+impl<'a> Iterator for SunPositionTimeRangeIterator<'a> {
+    type Item = SunPosition;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current_time < self.to {
+            // check if new day
+            if self.previous_time.is_none()
+                || self.current_time.ordinal() != self.previous_time.unwrap().ordinal()
+            {
+                self.sunrise_sunset = Some(calc_sunrise_and_set(
+                    self.current_time.date().and_hms(13, 0, 0), // switch at midday for some reason
+                    self.centroid.lat,
+                    self.centroid.lon,
+                ));
+            }
+
+            while self.sunrise_sunset.as_ref().unwrap().polar_night && self.current_time <= self.to
+            {
+                self.current_time = (self.current_time + Duration::days(1))
+                    .date()
+                    .and_hms(0, 0, 0);
+                self.sunrise_sunset = Some(calc_sunrise_and_set(
+                    self.current_time.date().and_hms(13, 0, 0), // switch at midday for some reason
+                    self.centroid.lat,
+                    self.centroid.lon,
+                ));
+            }
+
+            let sunrise_sunset = self.sunrise_sunset.as_ref().unwrap();
+
+            if !sunrise_sunset.polar_day && self.current_time < sunrise_sunset.sunrise.unwrap() {
+                self.current_time = sunrise_sunset.sunrise.unwrap();
+            }
+
+            let next_time = {
+                let next_time = self.current_time + Duration::minutes(self.step_mins as i64);
+                let sunset = sunrise_sunset.sunset.unwrap();
+                let next_time = if next_time >= sunset {
+                    sunset
+                } else {
+                    next_time
+                };
+                let next_time = if next_time >= self.to {
+                    self.to
+                } else {
+                    next_time
+                };
+                let next_time = if self.current_time == sunset || self.current_time == self.to {
+                    // next day
+                    (self.current_time + Duration::days(1))
+                        .date()
+                        .and_hms(0, 0, 0)
+                } else {
+                    next_time
+                };
+                next_time
+            };
+
+            let step_coef = (next_time - self.current_time).num_minutes() as f64 / 60.;
+            let sun_positon = self.get_sun_position(step_coef);
+
+            self.previous_time = Some(self.current_time);
+            self.current_time = next_time;
+
+            Some(sun_positon)
+        } else {
+            None
+        }
+    }
+}
+
+impl<'a> SunPositionTimeRangeIterator<'a> {
+    pub fn new(
+        from: DateTime<Utc>,
+        to: DateTime<Utc>,
+        centroid: &'a Centroid,
+        step_mins: f64,
+    ) -> Self {
+        SunPositionTimeRangeIterator {
+            to,
+            centroid,
+            step_mins,
+            previous_time: None,
+            current_time: from,
+            sunrise_sunset: None,
+        }
+    }
+    pub fn get_sun_position(&self, step_coef: f64) -> SunPosition {
+        let time = self.current_time;
+        let sol_pos = calc_solar_position(time, self.centroid.lat, self.centroid.lon).unwrap();
+        let altitude = (90. - sol_pos.zenith_angle).to_radians();
+        let azimuth = sol_pos.azimuth.to_radians();
+        let roll = (PI / 2.) + altitude;
+        let yaw = azimuth - PI;
+
+        let rotation_x = Rotation3::from_euler_angles(roll, 0.0, 0.0);
+        let rotation_z = Rotation3::from_euler_angles(0.0, 0.0, yaw);
+        SunPosition {
+            rotation_x,
+            rotation_z,
+            azimuth,
+            altitude,
+            step_coef,
+            time,
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct SunPosition {
     pub rotation_x: Rotation<f64, 3>,
     pub rotation_z: Rotation<f64, 3>,
     pub azimuth: f64,
     pub altitude: f64,
+    pub step_coef: f64,
     pub time: DateTime<Utc>,
 }
