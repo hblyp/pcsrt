@@ -42,12 +42,6 @@ pub struct SunPositionTimeRangeIterator<'a> {
 impl<'a> Iterator for SunPositionTimeRangeIterator<'a> {
     type Item = SunPosition;
     fn next(&mut self) -> Option<Self::Item> {
-        println!(
-            "{} {} {}",
-            self.current_time,
-            self.to,
-            self.current_time < self.to
-        );
         if self.current_time < self.to {
             // check if new day
             if self.previous_time.is_none()

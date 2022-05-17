@@ -47,5 +47,5 @@ fn update_global_irradiance(
     irradiation.global_irradiance += irradiance.global_irradiance * step_coef;
     irradiation.beam_component += irradiance.beam_component * step_coef;
     irradiation.diffuse_component += irradiance.diffuse_component * step_coef;
-    irradiation.illumination_count += if in_shadow { 0. } else { 1. * step_coef };
+    irradiation.sun_hours += if in_shadow { 0. } else { 1. * step_coef };
 }

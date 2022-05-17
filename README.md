@@ -4,7 +4,7 @@ A tool for modeling solar radiation & insolation on point cloud data built in Ru
 ![](/img/preview.png)
 
 ## Description
-pcsrt addresses the issue of solar radiation modeling in 3D space using generic voxel representation of space making it usable on complex objects such as vegetation. It implements the [European Solar Radiation Atlas (ESRA)](https://www.sciencedirect.com/science/article/pii/S0038092X99000559) model that uses Linke turbidity factor to estimate the attenuation of the irradiance in atmosphere. The direct (beam) and diffuse component of the solar radiation, as well as insolation count, is calculated for every point. pcsrt transforms the input point cloud into 3D voxel grid, constructs the regression planes for each voxel based on surrounding points and then calculates the insolation and solar radiation components for the time period specified. The position of the Sun is calculated based on reference point (ideally centroid) of the point cloud. LAS/LAZ file formats are currently supported as input files and LAS/LAZ/PLY as output files.
+pcsrt addresses the issue of solar radiation modeling in 3D space using generic voxel representation of space making it usable on complex objects such as vegetation. It implements the [European Solar Radiation Atlas (ESRA)](https://www.sciencedirect.com/science/article/pii/S0038092X99000559) model that uses Linke turbidity factor to estimate the attenuation of the irradiance in atmosphere. The direct (beam) and diffuse component of the solar radiation, as well as insolation count, is calculated for every point. pcsrt transforms the input point cloud into 3D voxel grid, constructs the regression planes for each voxel based on surrounding points and then calculates the insolation time and solar radiation components for the time period specified. The position of the Sun is calculated based on reference point (ideally centroid) of the point cloud. LAS/LAZ file formats are currently supported as input files and LAS/LAZ/PLY as output files.
 
 ## Build
 1. Download the source code.
@@ -22,7 +22,7 @@ pcsrt addresses the issue of solar radiation modeling in 3D space using generic 
 
 pcsrt is a command line tool that requires at least the point cloud centroid position, Linke turbidity factor and time period to be specified in addition to input and output file paths. However, additional optional parameters can be used to modify the way in which pcsrt processes the point cloud. The most "sensitive" params are `--linke-turbidity-factor` which has direct impact on output solar radiation values and `--voxel-size` that specifies the detail in which the cloud is processed.
 
-Output point cloud contains irradiation values [W.h/m^2] - `global_irradiance`, `beam_component`, `diffuse_component` and the `illumination_count` in the time period with the time step. 
+Output point cloud contains irradiation values [W.h/m^2] - `global_irradiance`, `beam_component`, `diffuse_component` and the `sun_hours` in the time period with the time step. 
 
 Currently LAS/LAZ file readers are implemented for input files and LAS/LAZ & PLY (binary and text) writers are implemented for output files.
 

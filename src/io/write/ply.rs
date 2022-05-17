@@ -43,8 +43,8 @@ impl WriteOutput for PlyFileWriter {
             Property::Double(irradiation.diffuse_component),
         );
         ply_point.insert(
-            "insolation_times".to_string(),
-            Property::UInt(irradiation.illumination_count as u32),
+            "insolation_time".to_string(),
+            Property::UInt(irradiation.sun_hours as u32),
         );
         if self.ascii {
             self.writer
@@ -96,7 +96,7 @@ impl PlyFileWriter {
             ("irradiance", ScalarType::Double),
             ("beam_component", ScalarType::Double),
             ("diffuse_component", ScalarType::Double),
-            ("insolation_times", ScalarType::UInt),
+            ("insolation_time", ScalarType::UInt),
         ];
 
         for (property_name, scalar_type) in property_names.iter() {

@@ -78,7 +78,7 @@ impl IntoVoxel<Voxel> for Point {
                 global_irradiance: 0.,
                 beam_component: 0.,
                 diffuse_component: 0.,
-                illumination_count: 0.,
+                sun_hours: 0.,
             }),
             normal_vector: NormalVector {
                 x: 0.,
@@ -185,7 +185,7 @@ pub struct Irradiation {
     pub global_irradiance: f64,
     pub beam_component: f64,
     pub diffuse_component: f64,
-    pub illumination_count: f64,
+    pub sun_hours: f64,
 }
 
 pub type VoxelGrid<V> = HashMap<(i64, i64, i64), V, BuildHasherDefault<XxHash64>>;

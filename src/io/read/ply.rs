@@ -19,7 +19,5 @@
     // let ply = Parser::<DefaultElement>::new().read_ply(&mut file).unwrap();
     // let iter = ply.payload.into_iter();
     // for (something, other_thing) in iter {
-    //     println!("{}", something);
-    //     println!("{:?}", other_thing);
     // }
 // }

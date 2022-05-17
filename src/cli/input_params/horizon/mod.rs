@@ -46,8 +46,6 @@ impl Horizon {
             let horizon_height =
                 left_height + (((right_height - left_height) / angle_step) * azimuth_residual);
 
-            println!("{} {}", altitude, horizon_height);
-
             altitude > horizon_height
         }
     }

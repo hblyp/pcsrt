@@ -27,7 +27,7 @@ impl WriteOutput for LasFileWriter {
             irradiation.global_irradiance,
             irradiation.beam_component,
             irradiation.diffuse_component,
-            irradiation.illumination_count,
+            irradiation.sun_hours,
         ];
         let normal_as_rgb = Color {
             red: ((0.5 * normal_vector.x + 0.5) * 255.).round() as u16,
@@ -62,7 +62,7 @@ impl LasFileWriter {
         builder.point_format.is_compressed = matches!(output_file.file_type, FileType::Laz);
         builder.point_format.extra_bytes = 32;
 
-        let mut insolation_times_vlr = las::Vlr {
+        let mut insolation_time_vlr = las::Vlr {
             user_id: "LASF_Spec".to_string(),
             record_id: 4,
             description: "Extra Bytes Record".to_string(),
@@ -73,11 +73,11 @@ impl LasFileWriter {
             "irradiance",
             "beam_component",
             "diffuse_component",
-            "insolation_times",
+            "insolation_time",
         ];
 
-        insolation_times_vlr.data = fields_to_vlr(&fields);
-        builder.evlrs.push(insolation_times_vlr);
+        insolation_time_vlr.data = fields_to_vlr(&fields);
+        builder.evlrs.push(insolation_time_vlr);
 
         let min_x = cloud_params.extent.min.0.floor();
         let min_y = cloud_params.extent.min.1.floor();
