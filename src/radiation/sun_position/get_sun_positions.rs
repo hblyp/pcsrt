@@ -1,8 +1,8 @@
 // use super::calc_solar_position;
-use std::f64::consts::PI;
 use chrono::{DateTime, Datelike, Duration, Utc};
 use nalgebra::{Rotation, Rotation3};
 use spa::calc_solar_position;
+use std::f64::consts::PI;
 
 use crate::cli::{input_params::centroid::Centroid, InputParams};
 
@@ -42,6 +42,12 @@ pub struct SunPositionTimeRangeIterator<'a> {
 impl<'a> Iterator for SunPositionTimeRangeIterator<'a> {
     type Item = SunPosition;
     fn next(&mut self) -> Option<Self::Item> {
+        println!(
+            "{} {} {}",
+            self.current_time,
+            self.to,
+            self.current_time < self.to
+        );
         if self.current_time < self.to {
             // check if new day
             if self.previous_time.is_none()
@@ -66,43 +72,54 @@ impl<'a> Iterator for SunPositionTimeRangeIterator<'a> {
                 ));
             }
 
-            let sunrise_sunset = self.sunrise_sunset.as_ref().unwrap();
+            let SunriseSunset {
+                sunrise,
+                sunset,
+                polar_day,
+                polar_night: _,
+            } = self.sunrise_sunset.as_ref().unwrap();
 
-            if !sunrise_sunset.polar_day && self.current_time < sunrise_sunset.sunrise.unwrap() {
-                self.current_time = sunrise_sunset.sunrise.unwrap();
+            let sunrise = sunrise.unwrap();
+            let sunset = sunset.unwrap();
+
+            if !polar_day && self.current_time < sunrise {
+                self.current_time = sunrise;
             }
 
-            let next_time = {
-                let next_time = self.current_time + Duration::minutes(self.step_mins as i64);
-                let sunset = sunrise_sunset.sunset.unwrap();
-                let next_time = if next_time >= sunset {
-                    sunset
-                } else {
-                    next_time
-                };
-                let next_time = if next_time >= self.to {
-                    self.to
-                } else {
-                    next_time
-                };
-                let next_time = if self.current_time == sunset || self.current_time == self.to {
-                    // next day
-                    (self.current_time + Duration::days(1))
-                        .date()
-                        .and_hms(0, 0, 0)
-                } else {
-                    next_time
-                };
-                next_time
-            };
+            let next_time = self.current_time + Duration::minutes(self.step_mins as i64);
 
-            let step_coef = (next_time - self.current_time).num_minutes() as f64 / 60.;
-            let sun_positon = self.get_sun_position(step_coef);
+            if next_time > sunset {
+                let step_coef = (sunset - self.current_time).num_minutes() as f64 / 60.;
+                let sun_positon = self.get_sun_position(step_coef);
 
-            self.previous_time = Some(self.current_time);
-            self.current_time = next_time;
+                self.previous_time = Some(self.current_time);
 
-            Some(sun_positon)
+                let next_day = self.current_time.date().and_hms(13, 0, 0) + Duration::days(1);
+                let next_day_sunrise =
+                    calc_sunrise_and_set(next_day, self.centroid.lat, self.centroid.lon);
+
+                self.current_time = if next_day_sunrise.polar_day || next_day_sunrise.polar_night {
+                    self.current_time.date().and_hms(0, 0, 0) + Duration::days(1)
+                } else {
+                    next_day_sunrise.sunrise.unwrap()
+                };
+
+                Some(sun_positon)
+            } else if next_time > self.to {
+                let step_coef = (self.to - self.current_time).num_minutes() as f64 / 60.;
+                let sun_positon = self.get_sun_position(step_coef);
+
+                self.previous_time = Some(self.current_time);
+                self.current_time = next_time;
+                Some(sun_positon)
+            } else {
+                let step_coef = (next_time - self.current_time).num_minutes() as f64 / 60.;
+                let sun_positon = self.get_sun_position(step_coef);
+
+                self.previous_time = Some(self.current_time);
+                self.current_time = next_time;
+                Some(sun_positon)
+            }
         } else {
             None
         }

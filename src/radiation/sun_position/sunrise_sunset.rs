@@ -7,6 +7,7 @@ use std::{
 
 use chrono::{DateTime, TimeZone, Utc};
 
+#[derive(Debug)]
 pub struct SunriseSunset {
     pub sunrise: Option<DateTime<Utc>>,
     pub sunset: Option<DateTime<Utc>>,
@@ -51,13 +52,12 @@ pub fn calc_sunrise_and_set(utc: DateTime<Utc>, lat: f64, lon: f64) -> SunriseSu
         let untergang_jd = (jd_start as f64) - 0.5 + (untergang_welt / 24.0);
 
         //	let untergang_utc = untergang_lokal - geographische_laenge /15.0;
-        let sunriseset = SunriseSunset {
+        SunriseSunset {
             sunrise: Some(to_utc(aufgang_jd)),
             sunset: Some(to_utc(untergang_jd)),
             polar_day: false,
             polar_night: false,
-        };
-        sunriseset
+        }
     }
 }
 
@@ -119,9 +119,9 @@ fn berechne_zeitgleichung(t: f64) -> (f64, f64) {
         d_ra -= 24.0;
     }
 
-    d_ra = d_ra * 1.0027379;
+    d_ra *= 1.0027379;
 
-    return (d_ra, dk);
+    (d_ra, dk)
 }
 
 /// Projecting value into range [0,..,PI]
@@ -139,7 +139,8 @@ fn in_pi(x: f64) -> f64 {
     }
 }
 
-const RAD: f64 = 0.017453292519943295769236907684886;
+// const RAD: f64 = 0.017453292519943295769236907684886;
+const RAD: f64 = 0.017_453_292_519_943_295;
 
 /// Returns the eccentricity of earth ellipse
 ///
@@ -148,6 +149,5 @@ const RAD: f64 = 0.017453292519943295769236907684886;
 /// * `t` - time according to standard equinox J2000.0
 ///
 fn eps(t: f64) -> f64 {
-    return RAD
-        * (23.43929111 + ((-46.8150) * t - 0.00059 * t * t + 0.001813 * t * t * t) / 3600.0);
+    RAD * (23.43929111 + ((-46.8150) * t - 0.00059 * t * t + 0.001813 * t * t * t) / 3600.0)
 }

@@ -60,9 +60,8 @@ pub fn get_irradiance<'a>(
         beam_component,
     );
 
-    let step_coef = input_params.step_mins / 60.;
-    let beam_component = beam_component.unwrap_or(0.) * step_coef;
-    let diffuse_component = diffuse_component * step_coef;
+    let beam_component = beam_component.unwrap_or(0.);
+    let diffuse_component = diffuse_component;
 
     let global_irradiance = beam_component + diffuse_component;
 
