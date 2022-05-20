@@ -108,7 +108,10 @@ impl<'a> Iterator for SunPositionTimeRangeIterator<'a> {
                 Some(sun_positon)
             } else {
                 let step_coef = (next_time - self.current_time).num_minutes() as f64 / 60.;
-                let sun_positon = self.get_sun_position(step_coef);
+                let mut sun_positon = self.get_sun_position(step_coef);
+                if self.current_time == sunrise {
+                    sun_positon.altitude = 0.0000000001 // possible negative altitude
+                }
 
                 self.previous_time = Some(self.current_time);
                 self.current_time = next_time;

@@ -19,9 +19,10 @@ pub fn pcsrt() -> Result<(), Box<dyn Error>> {
     let cloud_params = get_cloud_params(&input_params, &reader)?;
 
     info!(
-        "Computing solar radiation for:\nInput file: {}\nPoint count: {}\nVoxel size: {}\nTime range: {} - {}\nTime step: {}min",
+        "Computing solar radiation for:\nInput file: {}\nPoint count: {}\nAverage points: {}\nVoxel size: {}\nTime range: {} - {}\nTime step: {}min",
         input_params.input_file.path,
         cloud_params.point_count,
+        (cloud_params.average_points_in_voxel * 10.).round() / 10.,
         cloud_params.voxel_size,
         input_params.time_range.from.to_rfc3339(),
         input_params.time_range.to.to_rfc3339(),
