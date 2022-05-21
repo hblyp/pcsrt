@@ -25,7 +25,7 @@ impl Horizon {
         let altitude = altitude.to_degrees();
         let angle_step = self.angle_step as f64;
         if self.is_flat {
-            altitude > 0.
+            true
         } else {
             let mut angle_idx = (azimuth / angle_step).floor() as usize;
             let last_idx = self.horizon_height.len() - 1;

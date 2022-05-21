@@ -1,3 +1,4 @@
+use log::info;
 use rayon::prelude::*;
 use std::rc::Rc;
 
@@ -13,6 +14,7 @@ use crate::voxel::VoxelGrid;
 
 pub fn calculate_solar_radiation(voxel_grid: &VoxelGrid<Voxel>, input_params: &InputParams) {
     let sun_positions = get_sun_positions(input_params);
+    info!("Visible sun epochs: {}", sun_positions.len());
 
     sun_positions.par_iter().for_each(|sun_position| {
         let rot_voxel_key_pairs = get_rotated_voxel_key_pair_iterator(voxel_grid, sun_position);
