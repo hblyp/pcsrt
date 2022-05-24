@@ -66,9 +66,9 @@ fn search_for_adjacent_points(
             if let Some(voxel) = voxel_grid.get(&key.as_tuple()) {
                 for Point { x, y, z, .. } in &voxel.points {
                     point_set.insert((
-                        (x * 10000.) as i64,
-                        (y * 10000.) as i64,
-                        (z * 10000.) as i64,
+                        (x * 1000.) as i64,
+                        (y * 1000.) as i64,
+                        (z * 1000.) as i64,
                     ));
                 }
             }
