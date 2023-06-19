@@ -4,6 +4,10 @@ version = "0.1.0"
 authors = ["Filip Pruzinec <pruzinec.f@gmail.com>"]
 edition = "2021"
 
+[lib]
+name = "pcsrt"
+path = "src/lib/mod.rs"
+
 [dependencies]
 las = { version = "0.7.4", features = ["laz"] }
 ply-rs = "0.1.3"

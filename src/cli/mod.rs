@@ -1,13 +1,10 @@
-use self::input_params::block_params::{parse_block_params, BlockParams};
-use self::input_params::centroid::{parse_centroid, Centroid};
-use self::input_params::file::{parse_file, File};
-use self::input_params::horizon::{parse_horizon, Horizon};
-use self::input_params::linke::{parse_linke, Linke};
-use self::input_params::time_range::{parse_time_range, TimeRange};
-
 use clap::{AppSettings, Parser};
+use parsers::{
+    parse_block_params, parse_centroid, parse_file, parse_horizon, parse_linke, parse_time_range,
+};
+use pcsrt::common::{BlockParams, Centroid, File, Horizon, Linke, TimeRange};
 
-pub mod input_params;
+mod parsers;
 
 /// A tool for modeling solar radiation & insolation on point cloud data built in Rust.
 #[derive(Parser, Debug)]
