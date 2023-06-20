@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Horizon {
     pub angle_step: usize,
     pub horizon_height: Vec<f64>,

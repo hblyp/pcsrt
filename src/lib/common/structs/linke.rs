@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Linke(f64, f64, f64, f64, f64, f64, f64, f64, f64, f64, f64, f64);
 
 impl Linke {

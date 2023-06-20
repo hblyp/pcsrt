@@ -5,7 +5,7 @@ pub enum FileType {
     Ply,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct File {
     pub path: String,
     pub file_type: FileType,

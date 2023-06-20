@@ -5,8 +5,8 @@ use std::{ffi::OsStr, path::Path};
 
 use pcsrt::common::{File, FileType};
 
-pub fn parse_file(file: &OsStr) -> Result<File, ParseFileError> {
-    let path = file.to_str().unwrap().to_string(); // todo handle
+pub fn parse_file(file: &str) -> Result<File, ParseFileError> {
+    let path = file.to_string(); // todo handle
     if let Some(file_extension) = Path::new(file).extension().and_then(OsStr::to_str) {
         match file_extension {
             "las" => Ok(File {
