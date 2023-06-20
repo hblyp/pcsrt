@@ -1,7 +1,7 @@
 // use super::calc_solar_position;
 use chrono::{DateTime, Datelike, Duration, Utc};
 use nalgebra::{Rotation, Rotation3};
-use spa::calc_solar_position;
+use spa::{solar_position, FloatOps};
 use std::f64::consts::PI;
 
 use crate::common::{Centroid, Horizon, TimeRange};
@@ -117,6 +117,15 @@ impl<'a> Iterator for SunPositionTimeRangeIterator<'a> {
     }
 }
 
+pub struct StdFloatOps;
+
+impl FloatOps for StdFloatOps {
+    fn sin(x: f64) -> f64 { x.sin() }    fn cos(x: f64) -> f64 { x.cos() }     fn tan(x: f64) -> f64 { x.tan() }
+    fn asin(x: f64) -> f64 { x.asin() }  fn acos(x: f64) -> f64 { x.acos() }   fn atan(x: f64) -> f64 { x.atan() }
+    fn atan2(y: f64, x: f64) -> f64 { y.atan2(x) }
+    fn trunc(x: f64) -> f64 { x.trunc() }
+}
+
 impl<'a> SunPositionTimeRangeIterator<'a> {
     pub fn new(
         from: DateTime<Utc>,
@@ -135,7 +144,7 @@ impl<'a> SunPositionTimeRangeIterator<'a> {
     }
     pub fn get_sun_position(&self, step_coef: f64) -> SunPosition {
         let time = self.current_time;
-        let sol_pos = calc_solar_position(time, self.centroid.lat, self.centroid.lon).unwrap();
+        let sol_pos = solar_position::<StdFloatOps>(time, self.centroid.lat, self.centroid.lon).unwrap();
         let altitude = (90. - sol_pos.zenith_angle).to_radians();
         let azimuth = sol_pos.azimuth.to_radians();
         let roll = (PI / 2.) + altitude;
