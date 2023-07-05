@@ -57,7 +57,7 @@ impl LasFileWriter {
         let file = File::create(&output_file.path)?;
         let file = BufWriter::new(file);
 
-        let mut builder = Builder::from((1, 2));
+        let mut builder = Builder::from((1, 3));
         builder.point_format = Format::new(2).unwrap();
         builder.point_format.is_compressed = matches!(output_file.file_type, FileType::Laz);
         builder.point_format.extra_bytes = 32;

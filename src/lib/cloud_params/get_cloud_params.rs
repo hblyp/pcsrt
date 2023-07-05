@@ -54,6 +54,7 @@ pub fn get_cloud_params(
     Ok(cloud_params)
 }
 
+#[derive(Clone)]
 pub struct CloudParams {
     pub voxel_size: f64,
     pub average_points_in_voxel: f64,

@@ -34,7 +34,7 @@ pub struct RunOptions {
     #[arg(short = 'p', long, default_value = "4")]
     pub average_points_in_voxel: f64,
 
-    /// [<SIZE(int)>,<OVERLAP(int)>] If specified, the cloud will be processed sequentially in square blocks with defined overlaps (uses less RAM, takes longer).
+    /// [<SIZE(int)>,<OVERLAP(int)>] If specified, the cloud will be processed sequentially in square blocks with defined overlaps (uses less memory, takes longer).
     #[arg(short='b', long, value_parser=parse_block_params)]
     pub block_process_params: Option<BlockParams>,
 
