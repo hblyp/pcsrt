@@ -10,7 +10,11 @@ use pcsrt::{
 };
 use std::{env, error::Error};
 
-use crate::cli::InputParams;
+use cli::{
+    BuildCommand, BuildOptions,
+    Command::{Build, Run},
+    Options, RunOptions,
+};
 
 mod cli;
 
@@ -20,41 +24,48 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     info!("========= Point Cloud Solar Radiation Tool =========");
 
-    let input_params = InputParams::parse();
+    let options = Options::parse();
 
+    match options.command {
+        Run(run_opts) => run(run_opts),
+        Build(BuildOptions { command }) => match command {
+            BuildCommand::Grid(_build_grid_opts) => unimplemented!(),
+            BuildCommand::Normals(_build_normals_opts) => unimplemented!(),
+        },
+    }
+}
+
+fn run(options: RunOptions) -> Result<(), Box<dyn Error>> {
     info!("Reading cloud params");
-    let reader = Reader::new(&input_params.input_file);
+    let reader = Reader::new(&options.input_file);
     let cloud_params = get_cloud_params(
-        &input_params.block_process_params.clone().unwrap_or_default(),
-        input_params.voxel_size,
-        input_params.average_points_in_voxel,
+        &options.block_process_params.clone().unwrap_or_default(),
+        options.voxel_size,
+        options.average_points_in_voxel,
         &reader,
     )?;
 
     info!(
         "Computing solar radiation for:\nInput file: {}\nPoint count: {}\nAverage points: {}\nVoxel size: {}\nTime range: {} - {}\nTime step: {}min",
-        input_params.input_file.path,
+        options.input_file.path,
         cloud_params.point_count,
         (cloud_params.average_points_in_voxel * 10.).round() / 10.,
         cloud_params.voxel_size,
-        input_params.time_range.from.to_rfc3339(),
-        input_params.time_range.to.to_rfc3339(),
-        input_params.step_mins
+        options.time_range.from.to_rfc3339(),
+        options.time_range.to.to_rfc3339(),
+        options.step_mins
     );
 
     let mut writer = Writer::new(
-        &input_params.output_file,
-        input_params.output_ply_ascii,
+        &options.output_file,
+        options.output_ply_ascii,
         &cloud_params,
     )?;
 
     let block_iterator = get_voxel_block_iterator(
         &reader,
         &cloud_params.extent,
-        input_params
-            .block_process_params
-            .clone()
-            .unwrap_or_default(),
+        options.block_process_params.clone().unwrap_or_default(),
     );
 
     for block in block_iterator {
@@ -77,21 +88,22 @@ fn main() -> Result<(), Box<dyn Error>> {
         info!("Calculating solar radiation");
         calculate_solar_radiation(
             &voxel_grid,
-            &input_params.time_range,
-            &input_params.step_mins,
-            &input_params.centroid,
-            &input_params.horizon,
-            &input_params.linke_turbidity_factor,
+            &options.time_range,
+            &options.step_mins,
+            &options.centroid,
+            &options.horizon,
+            &options.linke_turbidity_factor,
         );
 
         info!(
             "Writing solar radiation for block to file \"{}\"",
-            input_params.output_file.path
+            options.output_file.path
         );
 
         writer.write(voxel_grid, &block.translation)?;
     }
 
     info!("====================== Done ========================");
+
     Ok(())
 }

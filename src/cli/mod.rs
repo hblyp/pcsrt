@@ -1,56 +1,35 @@
-use clap::Parser;
-use parsers::{
-    parse_block_params, parse_centroid, parse_file, parse_horizon, parse_linke, parse_time_range,
-};
-use pcsrt::common::{BlockParams, Centroid, File, Horizon, Linke, TimeRange};
+use clap::{Parser, Subcommand};
 
+pub use self::options::{BuildGridOptions, BuildNormalsOptions, RunOptions};
+
+mod options;
 mod parsers;
 
-/// A tool for modeling solar radiation & insolation on point cloud data built in Rust.
-#[derive(Parser)]
+#[derive(Parser, Debug)]
 #[command(name = "Point Cloud Solar Radiation Tool", author, version, about, long_about = None)]
-pub struct InputParams {
-    /// [<LAT(decimal)>,<LON(decimal)>,<ELEVATION(decimal)>] Point cloud centroid geographical coordinates & elevation
-    #[arg(short, long, value_parser = parse_centroid)]
-    pub centroid: Centroid,
+pub struct Options {
+    #[command(subcommand)]
+    pub command: Command,
+}
 
-    /// [<FROM(2020-01-01T12:00:00.000Z)>,<TO(2020-03-23T18:00:00.000Z)>] Time range in RFC3339 format
-    #[arg(short, long, value_parser=parse_time_range)]
-    pub time_range: TimeRange,
+#[derive(Subcommand, Debug)]
+pub enum Command {
+    /// Solar radiation modeling (For more info run pcsrt run --help)
+    Run(RunOptions),
+    /// Additional processing tools (For more info run pcsrt build --help)
+    Build(BuildOptions),
+}
 
-    /// [<int>] Step in minutes used in time range
-    #[clap(short, long)]
-    pub step_mins: f64,
+#[derive(Parser, Debug)]
+pub struct BuildOptions {
+    #[clap(subcommand)]
+    pub command: BuildCommand,
+}
 
-    /// [<SINGLE_LINKE(decimal)>] or [<MONTHLY_LINKE(12 comma separated decimals)>] Linke turbidity factor - single value or 12 (monthly) values
-    #[arg(short, long, value_parser=parse_linke)]
-    pub linke_turbidity_factor: Linke,
-
-    /// [<ANGLE_STEP(int)>,<ELEVATION(comma separated decimals - horizon elevation values)>] Horizon height used to take in account surrounding horizon (hills) when modeling solar radiation in smaller areas. Starts from north.
-    #[arg(short, long, value_parser=parse_horizon, default_value="360,0")]
-    pub horizon: Horizon,
-
-    /// [<decimal>] Size of the voxel in meters
-    #[clap(short, long)]
-    pub voxel_size: Option<f64>,
-
-    /// [<decimal>] Instead of specifing voxel size, average points in voxel can be used. (if not specified, 4 points in average will be used)
-    #[clap(short = 'p', long, default_value = "4")]
-    pub average_points_in_voxel: f64,
-
-    /// [<SIZE(int)>,<OVERLAP(int)>] If specified, the cloud will be processed sequentially in square blocks with defined overlaps (uses less RAM, takes longer).
-    #[arg(short='b', long, value_parser=parse_block_params)]
-    pub block_process_params: Option<BlockParams>,
-
-    /// When using ply output, specify if using text or binary format
-    #[clap(long)]
-    pub output_ply_ascii: bool,
-
-    /// Input file (las/laz)
-    #[arg(value_parser=parse_file)]
-    pub input_file: File,
-
-    /// Output file. File extension also specifies the output format (las/laz/ply).
-    #[arg(value_parser=parse_file)]
-    pub output_file: File,
+#[derive(Subcommand, Debug)]
+pub enum BuildCommand {
+    /// Builds voxel grid from input point clound
+    Grid(BuildGridOptions),
+    /// Calculates normal vectors for input voxel grid
+    Normals(BuildNormalsOptions),
 }
