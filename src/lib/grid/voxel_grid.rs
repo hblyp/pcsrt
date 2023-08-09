@@ -13,7 +13,8 @@ use super::voxel::{Key, NormalVector, Voxel};
 pub type VoxelGrid = HashMap<(i64, i64, i64), Voxel, BuildHasherDefault<XxHash64>>;
 
 pub trait Methods {
-    fn from_points(points: Vec<Point>, voxel_size: f64) -> Result<VoxelGrid, Box<dyn Error>>;
+    fn from_points(points: Vec<Point>, voxel_size: f64) -> VoxelGrid;
+    fn from_grid(points: Vec<Point>, voxel_size: f64) -> VoxelGrid;
     fn build_normals(&mut self, average_points_in_voxel: f64) -> Result<i32, Box<dyn Error>>;
     fn search_for_adjacent_points(
         &self,
@@ -25,7 +26,7 @@ pub trait Methods {
 }
 
 impl Methods for VoxelGrid {
-    fn from_points(points: Vec<Point>, voxel_size: f64) -> Result<VoxelGrid, Box<dyn Error>> {
+    fn from_points(points: Vec<Point>, voxel_size: f64) -> VoxelGrid {
         let mut voxel_grid: VoxelGrid = HashMap::default();
         for point in points {
             let key = point.to_key(voxel_size);
@@ -33,10 +34,42 @@ impl Methods for VoxelGrid {
             if let Some(voxel) = voxel_grid.get_mut(&key) {
                 voxel.push_point(point);
             } else {
-                voxel_grid.insert(key, point.to_voxel(voxel_size));
+                voxel_grid.insert(key, point.to_voxel(voxel_size, None, None));
             }
         }
-        Ok(voxel_grid)
+        voxel_grid
+    }
+
+    fn from_grid(points: Vec<Point>, voxel_size: f64) -> VoxelGrid {
+        let mut voxel_grid: VoxelGrid = HashMap::default();
+        for point in points {
+            let extra_data = from_byte_slice(point.extra_bytes.as_slice());
+
+            let key = (
+                extra_data[0] as i64,
+                extra_data[1] as i64,
+                extra_data[2] as i64,
+            );
+
+            let area = if extra_data[6] >= 0. {
+                Some(extra_data[6] as f32)
+            } else {
+                None
+            };
+
+            let opacity = if extra_data[7] >= 0. {
+                Some(extra_data[7] as f32)
+            } else {
+                None
+            };
+
+            if let Some(voxel) = voxel_grid.get_mut(&key) {
+                voxel.push_point(point);
+            } else {
+                voxel_grid.insert(key, point.to_voxel(voxel_size, area, opacity));
+            }
+        }
+        voxel_grid
     }
 
     fn read_normals(&mut self) {

@@ -17,6 +17,8 @@ pub struct Voxel {
     pub irradiation: RwLock<Irradiation>,
     pub normal_vector: NormalVector,
     pub points: Vec<Point>,
+    pub opacity: Option<f32>,
+    pub area: Option<f32>,
 }
 
 impl Voxel {

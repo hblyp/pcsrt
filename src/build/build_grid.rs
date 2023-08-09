@@ -4,7 +4,9 @@ use las::Read;
 use log::{info, warn};
 use pcsrt::{
     cloud_params::get_cloud_params,
-    grid::{block_iterator::get_voxel_block_iterator, voxel::point::TranslatePoint, Methods, VoxelGrid},
+    grid::{
+        block_iterator::get_voxel_block_iterator, voxel::point::TranslatePoint, Methods, VoxelGrid,
+    },
     io::Reader,
     io::Writer,
 };
@@ -35,14 +37,10 @@ pub fn build_grid(options: BuildGridOptions) -> Result<(), Box<dyn Error>> {
         &options.output_file,
         &header,
         &cloud_params,
-        vec![
-            "Voxel X",
-            "Voxel Y",
-            "Voxel Z",
-            "Normal Vec X",
-            "Normal Vec Y",
-            "Normal Vec Z",
-        ],
+        None,
+        Some(vec![
+            "v_x", "v_y", "v_z", "n_x", "n_y", "n_z", "area_m2", "opacity",
+        ]),
     )?;
 
     let block_iterator = get_voxel_block_iterator(
@@ -59,7 +57,7 @@ pub fn build_grid(options: BuildGridOptions) -> Result<(), Box<dyn Error>> {
             );
         }
         let mut voxel_grid: VoxelGrid =
-            VoxelGrid::from_points(block.points, cloud_params.voxel_size)?;
+            VoxelGrid::from_points(block.points, cloud_params.voxel_size);
 
         info!("Building normals for voxels");
         let failed_normals = voxel_grid.build_normals(cloud_params.average_points_in_voxel)?;
@@ -82,6 +80,8 @@ pub fn build_grid(options: BuildGridOptions) -> Result<(), Box<dyn Error>> {
                     normal_vector.x,
                     normal_vector.y,
                     normal_vector.z,
+                    -1.,
+                    0.5, // todo set to -1
                 ];
 
                 writer.write_point(&point, extra_bytes)?;

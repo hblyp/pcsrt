@@ -31,7 +31,7 @@ pub trait GetCoords {
 }
 
 pub trait IntoVoxel<V> {
-    fn to_voxel(self, voxel_size: f64) -> V;
+    fn to_voxel(self, voxel_size: f64, area: Option<f32>, opacity: Option<f32>) -> V;
 }
 
 pub trait IntoVoxelKey {
@@ -45,7 +45,7 @@ impl PointAsNaVec for Point {
 }
 
 impl IntoVoxel<Voxel> for Point {
-    fn to_voxel(self, voxel_size: f64) -> Voxel {
+    fn to_voxel(self, voxel_size: f64, area: Option<f32>, opacity: Option<f32>) -> Voxel {
         let key = self.to_key(voxel_size);
         Voxel {
             x: key.0,
@@ -63,6 +63,8 @@ impl IntoVoxel<Voxel> for Point {
                 z: 0.,
             },
             points: vec![self],
+            area,
+            opacity,
         }
     }
 }

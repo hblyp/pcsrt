@@ -3,7 +3,9 @@ use log::{info, warn};
 use pcsrt::{
     cloud_params::{get_cloud_params, CloudParams},
     common::{Extent, FileType},
-    grid::{block_iterator::get_voxel_block_iterator, voxel::point::TranslatePoint, Methods, VoxelGrid},
+    grid::{
+        block_iterator::get_voxel_block_iterator, voxel::point::TranslatePoint, Methods, VoxelGrid,
+    },
     io::{from_byte_slice, Reader, Writer},
     radiation::calculate_solar_radiation,
 };
@@ -64,12 +66,13 @@ pub fn run(options: RunOptions) -> Result<(), Box<dyn Error>> {
         &options.output_file,
         reader.to_point_reader().header(),
         &cloud_params,
-        vec![
+        Some(vec![
             "Global Irradiation",
             "Direct Irradiation",
             "Diffuse Irradiation",
             "Insolation Time (hrs)",
-        ],
+        ]),
+        None,
     )?;
 
     let block_iterator = get_voxel_block_iterator(
@@ -85,8 +88,11 @@ pub fn run(options: RunOptions) -> Result<(), Box<dyn Error>> {
                 block.block_number, block.block_count
             );
         }
-        let mut voxel_grid: VoxelGrid =
-            VoxelGrid::from_points(block.points, cloud_params.voxel_size)?;
+
+        let mut voxel_grid: VoxelGrid = match options.input_file.file_type {
+            FileType::Cloud => VoxelGrid::from_points(block.points, cloud_params.voxel_size),
+            FileType::Grid => VoxelGrid::from_grid(block.points, cloud_params.voxel_size),
+        };
 
         if matches!(options.input_file.file_type, FileType::Cloud) {
             info!("Building normals for voxels");

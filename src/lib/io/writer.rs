@@ -11,7 +11,8 @@ impl Writer {
         output_file: &OutputFile,
         header: &Header,
         cloud_params: &CloudParams,
-        additional_fields: Vec<&str>,
+        additional_fields: Option<Vec<&str>>,
+        internal_fields: Option<Vec<&str>>,
     ) -> Result<Self, Box<dyn Error>> {
         let file = File::create(&output_file.path)?;
         let file = BufWriter::new(file);
@@ -22,10 +23,19 @@ impl Writer {
         format.extend();
         format.is_compressed = output_file.is_compressed;
 
-        let additional_fields = additional_fields
+        let mut additional_fields = additional_fields
+            .unwrap_or(vec![])
             .iter()
             .map(|f| format!("[pcsrt] {}", f))
             .collect::<Vec<String>>();
+
+        let internal_fields = internal_fields
+            .unwrap_or(vec![])
+            .iter()
+            .map(|f| format!("_pcsrt_{}", f))
+            .collect::<Vec<String>>();
+
+        additional_fields.extend(internal_fields);
 
         let voxel_vlr = las::Vlr {
             user_id: "LASF_Spec".to_string(),
