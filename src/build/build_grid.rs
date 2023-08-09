@@ -1,10 +1,15 @@
 use std::error::Error;
 
 use las::Read;
-use log::info;
-use pcsrt::{cloud_params::get_cloud_params, io::Reader, voxel::IntoVoxelKey};
+use log::{info, warn};
+use pcsrt::{
+    cloud_params::get_cloud_params,
+    grid::{block_iterator::get_voxel_block_iterator, voxel::point::TranslatePoint, Methods, VoxelGrid},
+    io::Reader,
+    io::Writer,
+};
 
-use crate::{build::GridWriter, cli::BuildGridOptions};
+use crate::cli::BuildGridOptions;
 
 pub fn build_grid(options: BuildGridOptions) -> Result<(), Box<dyn Error>> {
     info!("Reading cloud params");
@@ -26,15 +31,62 @@ pub fn build_grid(options: BuildGridOptions) -> Result<(), Box<dyn Error>> {
 
     let header = reader.to_point_reader().header().clone();
 
-    let mut writer = GridWriter::new(&options.output_file, &header, &cloud_params)?;
+    let mut writer = Writer::new(
+        &options.output_file,
+        &header,
+        &cloud_params,
+        vec![
+            "Voxel X",
+            "Voxel Y",
+            "Voxel Z",
+            "Normal Vec X",
+            "Normal Vec Y",
+            "Normal Vec Z",
+        ],
+    )?;
 
-    for point in reader.to_point_reader().points() {
-        let mut point = point.expect("Invalid point in las file");
-        if header.point_format().has_gps_time && point.gps_time.is_none() {
-            point.gps_time = Some(0.);
+    let block_iterator = get_voxel_block_iterator(
+        &reader,
+        &cloud_params.extent,
+        options.block_process_params.unwrap_or_default(),
+    );
+
+    for block in block_iterator {
+        if block.block_count > 1 {
+            info!(
+                "Processing cloud block {}/{}",
+                block.block_number, block.block_count
+            );
         }
-        let voxel_coords = point.to_key(cloud_params.voxel_size);
-        writer.write_point(point, voxel_coords)?;
+        let mut voxel_grid: VoxelGrid =
+            VoxelGrid::from_points(block.points, cloud_params.voxel_size)?;
+
+        info!("Building normals for voxels");
+        let failed_normals = voxel_grid.build_normals(cloud_params.average_points_in_voxel)?;
+
+        if failed_normals > 0 {
+            warn!(
+                "Failed to construct normals on {} voxels (not enough surrounding points).",
+                failed_normals
+            );
+        }
+
+        for (_, voxel) in voxel_grid.drain() {
+            let normal_vector = voxel.normal_vector;
+            for mut point in voxel.points.into_iter().filter(|point| !point.is_overlap) {
+                point.translate_rev(&block.translation);
+                let extra_bytes = vec![
+                    voxel.x as f64,
+                    voxel.y as f64,
+                    voxel.z as f64,
+                    normal_vector.x,
+                    normal_vector.y,
+                    normal_vector.z,
+                ];
+
+                writer.write_point(&point, extra_bytes)?;
+            }
+        }
     }
 
     Ok(())

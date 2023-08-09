@@ -5,8 +5,8 @@ use twox_hash::XxHash64;
 
 use crate::{
     common::{BlockParams, Extent},
+    grid::{block_iterator::get_voxel_block_iterator, voxel::point::IntoVoxelKey},
     io::Reader,
-    voxel::{get_voxel_block_iterator, IntoVoxelKey},
 };
 
 pub fn get_average_points_in_voxel(

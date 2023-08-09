@@ -9,11 +9,11 @@ use super::radiation_components::get_irradiance;
 use super::radiation_components::VoxelIrradiance;
 use super::sun_position::get_sun_positions;
 use crate::common::{Centroid, Horizon, Linke, TimeRange};
-use crate::voxel::Voxel;
-use crate::voxel::VoxelGrid;
+use crate::grid::voxel::Voxel;
+use crate::grid::VoxelGrid;
 
 pub fn calculate_solar_radiation(
-    voxel_grid: &VoxelGrid<Voxel>,
+    voxel_grid: &VoxelGrid,
     time_range: &TimeRange,
     step_mins: &f64,
     centroid: &Centroid,

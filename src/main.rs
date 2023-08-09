@@ -29,7 +29,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         Run(run_opts) => run(run_opts),
         Build(BuildOptions { command }) => match command {
             BuildCommand::Grid(build_grid_opts) => build_grid(build_grid_opts),
-            BuildCommand::Normals(_build_normals_opts) => unimplemented!(),
         },
     }?;
 

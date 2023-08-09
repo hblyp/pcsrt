@@ -29,19 +29,19 @@ pub fn get_cloud_params(
         extent.update((point.x, point.y, point.z));
     }
 
-    let (voxel_size, average_points_in_voxel) = if voxel_size.is_none() {
-        get_voxel_size_and_average_points(
+    let (voxel_size, average_points_in_voxel) = match voxel_size {
+        Some(voxel_size) => {
+            let average_points_in_voxel =
+                get_average_points_in_voxel(reader, &extent, block_params.size, voxel_size);
+            (voxel_size, average_points_in_voxel)
+        }
+        None => get_voxel_size_and_average_points(
             reader,
             &extent,
             block_params.size,
             average_points_in_voxel,
             0.5,
-        )
-    } else {
-        let voxel_size = voxel_size.unwrap();
-        let average_points_in_voxel =
-            get_average_points_in_voxel(reader, &extent, block_params.size, voxel_size);
-        (voxel_size, average_points_in_voxel)
+        ),
     };
 
     let cloud_params = CloudParams {

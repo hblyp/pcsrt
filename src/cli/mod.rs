@@ -28,8 +28,6 @@ pub struct BuildOptions {
 
 #[derive(Subcommand, Debug)]
 pub enum BuildCommand {
-    /// Builds voxel grid from input point clound
+    /// Builds voxel grid from input point clound and calculates normal vectors
     Grid(BuildGridOptions),
-    /// Calculates normal vectors for input voxel grid
-    Normals(BuildNormalsOptions),
 }

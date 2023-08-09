@@ -1,42 +1,9 @@
+use las::Point;
+
 use crate::{
-    io::Reader,
-    voxel::{GetCoords, Point, TranslatePoint, Translation, TrimDecimals}, common::{Extent, BlockParams},
+    common::Extent,
+    grid::voxel::point::{GetCoords, TranslatePoint, Translation, TrimDecimals},
 };
-
-use las::{Point as LasPoint, Read};
-
-pub fn get_voxel_block_iterator<'a>(
-    reader: &'a Reader,
-    extent: &'a Extent<f64>,
-    block_params: BlockParams,
-) -> impl Iterator<Item = Block> + 'a {
-    let (x_length, y_length, _) = extent.get_dimensions();
-    let x_blocks = (x_length / block_params.size as f64).ceil() as usize;
-    let y_blocks = (y_length / block_params.size as f64).ceil() as usize;
-
-    (0..x_blocks).flat_map(move |i| {
-        (0..y_blocks).map(move |j| {
-            let mut reader = reader.to_point_reader();
-
-            let mut block = Block::new(
-                block_params.size,
-                block_params.overlap,
-                i,
-                j,
-                x_blocks,
-                y_blocks,
-                extent,
-            );
-
-            reader
-                .points()
-                .flatten()
-                .for_each(|point| block.push_point(point));
-
-            block
-        })
-    })
-}
 
 pub struct Block {
     pub block_number: usize,
@@ -99,14 +66,12 @@ impl Block {
         }
     }
 
-    fn push_point(&mut self, point: LasPoint) {
+    pub fn push_point(&mut self, point: Point) {
         if self.is_in_overlap_block(&point) {
             let overlap = !self.is_in_block(&point);
             let mut point = Point {
-                x: point.x,
-                y: point.y,
-                z: point.z,
-                overlap,
+                is_overlap: overlap,
+                ..point
             };
             point.translate(&self.translation);
             point.trim_decimals(3);

@@ -1,9 +1,10 @@
-use crate::voxel::{Key, Voxel};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::hash::BuildHasherDefault;
 use std::rc::Rc;
 use twox_hash::XxHash64;
+
+use crate::grid::voxel::{Voxel, Key};
 
 pub struct RotatedVoxelKeyPair<'a> {
     pub reference: &'a Voxel,

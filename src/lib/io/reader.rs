@@ -5,9 +5,6 @@ use std::io::BufReader;
 
 use crate::common::{File as InputFile, FileType};
 
-mod las;
-mod ply;
-
 pub struct Reader {
     pub input_file: String,
     pub input_file_type: FileType,

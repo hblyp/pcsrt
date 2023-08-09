@@ -1,13 +1,13 @@
 use crate::{
+    grid::{voxel::Key, VoxelGrid},
     radiation::sun_position::SunPosition,
-    voxel::{Key, Voxel, VoxelGrid},
 };
 
 use super::structs::*;
 use nalgebra::vector;
 
 pub fn get_rotated_voxel_key_pair_iterator<'a>(
-    voxel_grid: &'a VoxelGrid<Voxel>,
+    voxel_grid: &'a VoxelGrid,
     sun_position: &'a SunPosition,
 ) -> impl Iterator<Item = RotatedVoxelKeyPair<'a>> + 'a {
     let rot_voxel_key_pair_iter = voxel_grid.iter().map(|(reference_key, voxel)| {

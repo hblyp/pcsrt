@@ -1,37 +1,39 @@
+use crate::{cloud_params::CloudParams, common::File as OutputFile};
 use las::{Builder, Header, Point as LasPoint, Transform, Vector, Write, Writer as LasWriter};
-use pcsrt::{
-    cloud_params::CloudParams,
-    common::{File as OutputFile, FileType},
-};
 use std::{error::Error, fs::File, io::BufWriter};
 
-pub struct GridWriter {
+pub struct Writer {
     writer: LasWriter<BufWriter<File>>,
 }
 
-impl GridWriter {
+impl Writer {
     pub fn new(
         output_file: &OutputFile,
         header: &Header,
         cloud_params: &CloudParams,
+        additional_fields: Vec<&str>,
     ) -> Result<Self, Box<dyn Error>> {
         let file = File::create(&output_file.path)?;
         let file = BufWriter::new(file);
 
         let cloud_params = cloud_params.clone();
 
-        let mut format = header.point_format().clone();
+        let mut format = *header.point_format();
         format.extend();
-        format.is_compressed = matches!(output_file.file_type, FileType::Laz);
+        format.is_compressed = output_file.is_compressed;
 
-        let fields = vec!["v_x", "v_y", "v_z"];
+        let additional_fields = additional_fields
+            .iter()
+            .map(|f| format!("[pcsrt] {}", f))
+            .collect::<Vec<String>>();
+
         let voxel_vlr = las::Vlr {
             user_id: "LASF_Spec".to_string(),
             record_id: 4,
             description: "Extra Bytes Record".to_string(),
-            data: fields_to_vlr(&fields),
+            data: fields_to_vlr(&additional_fields),
         };
-        format.extra_bytes = 8 * fields.len() as u16;
+        format.extra_bytes = 8 * additional_fields.len() as u16;
 
         let cloud_params_vlr = las::Vlr {
             user_id: "PCSRT".to_string(),
@@ -77,7 +79,7 @@ impl GridWriter {
 
         let header = builder.into_header().unwrap();
 
-        let writer = GridWriter {
+        let writer = Writer {
             writer: LasWriter::new(file, header)?,
         };
 
@@ -86,18 +88,22 @@ impl GridWriter {
 
     pub fn write_point(
         &mut self,
-        point: LasPoint,
-        voxel_coords: (i64, i64, i64),
+        point: &LasPoint,
+        extra_bytes: Vec<f64>,
     ) -> Result<(), Box<dyn Error>> {
-        let extra_bytes = vec![
-            voxel_coords.0 as f64,
-            voxel_coords.1 as f64,
-            voxel_coords.2 as f64,
-        ];
         let extra_bytes = to_byte_slice(&extra_bytes).to_vec();
+
+        let gps_time =
+            if self.writer.header().point_format().has_gps_time && point.gps_time.is_none() {
+                Some(0.)
+            } else {
+                None
+            };
+
         let point = LasPoint {
-            extra_bytes: extra_bytes.clone(),
-            ..point
+            extra_bytes,
+            gps_time,
+            ..point.clone()
         };
 
         self.writer.write(point)?;
@@ -105,7 +111,7 @@ impl GridWriter {
     }
 }
 
-fn fields_to_vlr(fields: &[&str]) -> Vec<u8> {
+fn fields_to_vlr(fields: &Vec<String>) -> Vec<u8> {
     if fields.is_empty() {
         return vec![];
     }
@@ -130,4 +136,11 @@ fn fields_to_vlr(fields: &[&str]) -> Vec<u8> {
 
 fn to_byte_slice(floats: &'_ [f64]) -> &'_ [u8] {
     unsafe { std::slice::from_raw_parts(floats.as_ptr() as *const _, floats.len() * 8) }
+}
+
+pub fn from_byte_slice(byte_slice: &'_ [u8]) -> Vec<f64> {
+    let len = byte_slice.len();
+    let ptr = byte_slice.as_ptr() as *const f64;
+    let floats: &[f64] = unsafe { std::slice::from_raw_parts(ptr, len / 8) };
+    floats.to_vec()
 }

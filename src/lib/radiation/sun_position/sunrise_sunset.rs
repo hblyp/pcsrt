@@ -48,8 +48,8 @@ pub fn calc_sunrise_and_set(utc: DateTime<Utc>, lat: f64, lon: f64) -> SunriseSu
         let untergang_welt = untergang_lokal - geographische_laenge / 15.0;
         let jd_start = jd.trunc(); // discard fraction of day
 
-        let aufgang_jd = (jd_start as f64) - 0.5 + (aufgang_welt / 24.0);
-        let untergang_jd = (jd_start as f64) - 0.5 + (untergang_welt / 24.0);
+        let aufgang_jd = jd_start - 0.5 + (aufgang_welt / 24.0);
+        let untergang_jd = jd_start - 0.5 + (untergang_welt / 24.0);
 
         //	let untergang_utc = untergang_lokal - geographische_laenge /15.0;
         SunriseSunset {

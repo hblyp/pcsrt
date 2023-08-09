@@ -1,8 +1,8 @@
 use std::f64::consts::PI;
 
 use crate::common::{Centroid, Linke};
+use crate::grid::voxel::Voxel;
 use crate::radiation::sun_position::SunPosition;
-use crate::voxel::Voxel;
 
 use super::VoxelIrradiance;
 use super::{get_beam_irradiance, get_diffuse_irradiance};
