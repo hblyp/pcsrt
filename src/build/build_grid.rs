@@ -5,7 +5,7 @@ use log::{info, warn};
 use pcsrt::{
     cloud_params::get_cloud_params,
     grid::{
-        block_iterator::get_voxel_block_iterator, voxel::point::TranslatePoint, Methods, VoxelGrid,
+        block_iterator::get_voxel_block_iterator, voxel::point::TranslatePoint, VoxelGridUtils, VoxelGrid,
     },
     io::Reader,
     io::Writer,
@@ -39,7 +39,7 @@ pub fn build_grid(options: BuildGridOptions) -> Result<(), Box<dyn Error>> {
         &cloud_params,
         None,
         Some(vec![
-            "v_x", "v_y", "v_z", "n_x", "n_y", "n_z", "area_m2", "opacity",
+            "v_x", "v_y", "v_z", "n_x", "n_y", "n_z", "area_m2", "translucence",
         ]),
     )?;
 

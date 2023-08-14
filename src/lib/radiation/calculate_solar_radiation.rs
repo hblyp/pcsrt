@@ -11,6 +11,7 @@ use super::sun_position::get_sun_positions;
 use crate::common::{Centroid, Horizon, Linke, TimeRange};
 use crate::grid::voxel::Voxel;
 use crate::grid::VoxelGrid;
+use crate::radiation::illumination::IlluminationMapElement;
 
 pub fn calculate_solar_radiation(
     voxel_grid: &VoxelGrid,
@@ -26,44 +27,48 @@ pub fn calculate_solar_radiation(
     sun_positions.par_iter().for_each(|sun_position| {
         let rot_voxel_key_pairs = get_rotated_voxel_key_pair_iterator(voxel_grid, sun_position);
 
-        let voxel_illumination_map = IlluminationMap::create();
+        let mut voxel_illumination_map = IlluminationMap::create();
 
         for rot_voxel_key_pair in rot_voxel_key_pairs {
-            let rot_voxel_key_pair = Rc::new(rot_voxel_key_pair);
-            if let Some(voxel_in_shadow) =
-                voxel_illumination_map.get_voxel_in_shadow(rot_voxel_key_pair)
-            {
-                let irradiance = get_irradiance(
-                    linke_turbidity_factor,
-                    centroid,
-                    voxel_in_shadow,
-                    sun_position,
-                    true,
-                );
-
-                update_global_irradiance(
-                    voxel_in_shadow,
-                    &irradiance,
-                    true,
-                    sun_position.step_coef,
-                );
-            }
+            voxel_illumination_map.insert_voxel_key_pair(rot_voxel_key_pair);
         }
 
-        for (_z, illuminated_voxel) in voxel_illumination_map.borrow_mut().values() {
-            let irradiance = get_irradiance(
+        voxel_illumination_map.sort_voxel_ref_vectors();
+
+        for buffer in voxel_illumination_map.values() {
+            let mut prev_irradiance = get_irradiance(
                 linke_turbidity_factor,
                 centroid,
-                illuminated_voxel,
+                buffer.top.voxel,
                 sun_position,
                 false,
             );
+
+            let mut prev_translucence = buffer.top.voxel.translucence;
+
             update_global_irradiance(
-                illuminated_voxel,
-                &irradiance,
+                buffer.top.voxel,
+                &prev_irradiance,
                 false,
                 sun_position.step_coef,
             );
+
+            for ill_map_el in buffer.vec.iter() {
+                let voxel = ill_map_el.voxel;
+
+                let mut irradiance =
+                    get_irradiance(linke_turbidity_factor, centroid, voxel, sun_position, true);
+
+                if let Some(translucence) = prev_translucence {
+                    irradiance = irradiance + prev_irradiance * translucence as f64;
+
+                    // only continue with adding translucent radiation untill first opaque voxel
+                    // todo: rly?
+                    prev_translucence = voxel.translucence;
+                }
+
+                update_global_irradiance(voxel, &irradiance, true, sun_position.step_coef);
+            }
         }
     });
 }

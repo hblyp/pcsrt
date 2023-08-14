@@ -4,7 +4,7 @@ use pcsrt::{
     cloud_params::{get_cloud_params, CloudParams},
     common::{Extent, FileType},
     grid::{
-        block_iterator::get_voxel_block_iterator, voxel::point::TranslatePoint, Methods, VoxelGrid,
+        block_iterator::get_voxel_block_iterator, voxel::point::TranslatePoint, VoxelGridUtils, VoxelGrid,
     },
     io::{from_byte_slice, Reader, Writer},
     radiation::calculate_solar_radiation,
