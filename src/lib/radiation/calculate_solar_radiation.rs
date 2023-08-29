@@ -1,6 +1,5 @@
 use log::info;
 use rayon::prelude::*;
-use std::rc::Rc;
 
 use super::illumination::{
     get_rotated_voxel_key_pair_iterator, IlluminationMap, IlluminationMapUtils,
@@ -11,7 +10,6 @@ use super::sun_position::get_sun_positions;
 use crate::common::{Centroid, Horizon, Linke, TimeRange};
 use crate::grid::voxel::Voxel;
 use crate::grid::VoxelGrid;
-use crate::radiation::illumination::IlluminationMapElement;
 
 pub fn calculate_solar_radiation(
     voxel_grid: &VoxelGrid,
@@ -66,8 +64,10 @@ pub fn calculate_solar_radiation(
                     // todo: rly?
                     prev_translucence = voxel.translucence;
                 }
-
+                
                 update_global_irradiance(voxel, &irradiance, true, sun_position.step_coef);
+                
+                prev_irradiance = irradiance;
             }
         }
     });

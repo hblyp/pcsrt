@@ -18,6 +18,8 @@ pub enum Command {
     Run(RunOptions),
     /// Additional processing tools (For more info run pcsrt build --help)
     Build(BuildOptions),
+    /// Develop playground
+    DevelopPlayground,
 }
 
 #[derive(Parser, Debug)]

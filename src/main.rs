@@ -6,16 +6,17 @@ use std::{env, error::Error};
 
 use cli::{
     BuildCommand, BuildOptions,
-    Command::{Build, Run},
+    Command::{Build, DevelopPlayground, Run},
     Options,
 };
 use run::run;
 
-use crate::build::build_grid;
+use crate::{build::build_grid, develop::develop_playground};
 
-mod cli;
-mod run;
 mod build;
+mod cli;
+mod develop;
+mod run;
 
 fn main() -> Result<(), Box<dyn Error>> {
     env::set_var("RUST_LOG", "pcsrt=info");
@@ -30,6 +31,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         Build(BuildOptions { command }) => match command {
             BuildCommand::Grid(build_grid_opts) => build_grid(build_grid_opts),
         },
+        DevelopPlayground => develop_playground(),
     }?;
 
     info!("====================== Done ========================");
