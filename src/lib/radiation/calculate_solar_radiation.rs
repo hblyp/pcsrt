@@ -58,15 +58,15 @@ pub fn calculate_solar_radiation(
                     get_irradiance(linke_turbidity_factor, centroid, voxel, sun_position, true);
 
                 if let Some(translucence) = prev_translucence {
-                    irradiance = irradiance + prev_irradiance * translucence as f64;
+                    let passed_irradiance = prev_irradiance * translucence as f64;
+                    irradiance = irradiance.add_beam(&passed_irradiance);
 
                     // only continue with adding translucent radiation untill first opaque voxel
-                    // todo: rly?
                     prev_translucence = voxel.translucence;
                 }
-                
+
                 update_global_irradiance(voxel, &irradiance, true, sun_position.step_coef);
-                
+
                 prev_irradiance = irradiance;
             }
         }

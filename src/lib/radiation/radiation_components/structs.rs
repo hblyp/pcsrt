@@ -9,6 +9,15 @@ pub struct VoxelIrradiance<'a> {
     pub diffuse_component: f64,
 }
 
+impl<'a> VoxelIrradiance<'a> {
+    pub fn add_beam(mut self, other: &VoxelIrradiance) -> Self {
+        self.beam_component = self.beam_component + other.beam_component;
+        self.global_irradiance = self.global_irradiance + other.beam_component;
+
+        self
+    }
+}
+
 impl<'a, 'b> Add<VoxelIrradiance<'b>> for VoxelIrradiance<'a> {
     type Output = VoxelIrradiance<'a>;
 
