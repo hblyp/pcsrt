@@ -22,4 +22,5 @@ chrono = "0.4.19"
 clap = { version = "4.3.0", features = ["derive"] }
 log = "0.4.14"
 env_logger = "0.10.0"
+geoutils = "0.5.1"
 twox-hash = "1.6.2"
