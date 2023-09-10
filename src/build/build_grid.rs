@@ -81,7 +81,7 @@ pub fn build_grid(options: BuildGridOptions) -> Result<(), Box<dyn Error>> {
                     normal_vector.y,
                     normal_vector.z,
                     -1.,
-                    0.5, // todo set to -1
+                    -1.,
                 ];
 
                 writer.write_point(&point, extra_bytes)?;

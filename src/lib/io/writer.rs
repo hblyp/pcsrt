@@ -1,5 +1,7 @@
 use crate::{cloud_params::CloudParams, common::File as OutputFile};
-use las::{Builder, Header, Point as LasPoint, Transform, Vector, Write, Writer as LasWriter};
+use las::{
+    Builder, Header, Point as LasPoint, Transform, Vector, Version, Write, Writer as LasWriter,
+};
 use std::{error::Error, fs::File, io::BufWriter};
 
 pub struct Writer {
@@ -63,7 +65,15 @@ impl Writer {
             .to_vec(),
         };
 
-        let mut builder = Builder::from(header.version());
+        let version = header.version();
+        let min_v = if version.major < 2 && version.minor < 4 {
+            4
+        } else {
+            version.minor
+        };
+        let maj_v = if version.major < 1 { 1 } else { version.major };
+
+        let mut builder = Builder::from((maj_v, min_v));
         builder.point_format = format;
         builder.vlrs.push(voxel_vlr);
         builder.vlrs.push(cloud_params_vlr);
@@ -103,12 +113,11 @@ impl Writer {
     ) -> Result<(), Box<dyn Error>> {
         let extra_bytes = to_byte_slice(&extra_bytes).to_vec();
 
-        let gps_time =
-            if self.writer.header().point_format().has_gps_time && point.gps_time.is_none() {
-                Some(0.)
-            } else {
-                None
-            };
+        let gps_time = if self.writer.header().point_format().has_gps_time {
+            Some(point.gps_time.unwrap_or(0.))
+        } else {
+            None
+        };
 
         let point = LasPoint {
             extra_bytes,

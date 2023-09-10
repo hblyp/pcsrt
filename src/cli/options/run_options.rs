@@ -1,8 +1,9 @@
-use clap::Parser;
 use crate::cli::parsers::{
-    parse_block_params, parse_centroid, parse_file, parse_horizon, parse_linke, parse_time_range,
+    parse_block_params, parse_centroid, parse_file, parse_horizon, parse_linke, parse_terrain_dem,
+    parse_time_range,
 };
-use pcsrt::common::{BlockParams, Centroid, File, Horizon, Linke, TimeRange};
+use clap::Parser;
+use pcsrt::common::{BlockParams, Centroid, File, Horizon, Linke, TerrainDem, TimeRange};
 
 #[derive(Parser, Debug)]
 pub struct RunOptions {
@@ -25,6 +26,10 @@ pub struct RunOptions {
     /// [<ANGLE_STEP(int)>,<ELEVATION(comma separated decimals - horizon elevation values)>] Horizon height used to take in account surrounding horizon (hills) when modeling solar radiation in smaller areas. Starts from north.
     #[arg(short, long, value_parser=parse_horizon, default_value="360,0")]
     pub horizon: Horizon,
+
+    /// Path to DEM GeoTIFF file in EPSG 4326 used in horizon
+    #[arg(short = 'd', long, value_parser=parse_terrain_dem, default_value=None)]
+    pub terrain_dem: Option<TerrainDem>,
 
     /// [<decimal>] Size of the voxel in meters
     #[arg(short, long)]
