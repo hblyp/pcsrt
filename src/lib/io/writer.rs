@@ -1,7 +1,5 @@
 use crate::{cloud_params::CloudParams, common::File as OutputFile};
-use las::{
-    Builder, Header, Point as LasPoint, Transform, Vector, Version, Write, Writer as LasWriter,
-};
+use las::{Builder, Header, Point as LasPoint, Transform, Vector, Write, Writer as LasWriter};
 use std::{error::Error, fs::File, io::BufWriter};
 
 pub struct Writer {

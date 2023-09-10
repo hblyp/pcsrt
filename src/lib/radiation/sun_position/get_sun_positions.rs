@@ -4,7 +4,7 @@ use nalgebra::{Rotation, Rotation3};
 use spa::{solar_position, FloatOps};
 use std::f64::consts::PI;
 
-use crate::common::{Centroid, Horizon, TimeRange};
+use crate::common::{Centroid, Horizon, TerrainDem, TimeRange};
 
 use super::{calc_sunrise_and_set, SunriseSunset};
 
@@ -13,14 +13,25 @@ pub fn get_sun_positions(
     step_mins: &f64,
     centroid: &Centroid,
     horizon: &Horizon,
+    terrain_dem: &Option<TerrainDem>,
 ) -> Vec<SunPosition> {
     let iter =
         SunPositionTimeRangeIterator::new(time_range.from, time_range.to, centroid, *step_mins);
     let mut sun_positions: Vec<SunPosition> = vec![];
 
     for sun_pos in iter {
-        if horizon.is_visible(sun_pos.azimuth, sun_pos.altitude) {
-            sun_positions.push(sun_pos)
+        if let Some(terrain_dem) = terrain_dem {
+            if terrain_dem.is_sun_visible(
+                (centroid.lat, centroid.lon),
+                sun_pos.azimuth,
+                sun_pos.altitude,
+            ) {
+                sun_positions.push(sun_pos)
+            }
+        } else {
+            if horizon.is_visible(sun_pos.azimuth, sun_pos.altitude) {
+                sun_positions.push(sun_pos)
+            }
         }
     }
 
@@ -120,10 +131,30 @@ impl<'a> Iterator for SunPositionTimeRangeIterator<'a> {
 pub struct StdFloatOps;
 
 impl FloatOps for StdFloatOps {
-    fn sin(x: f64) -> f64 { x.sin() }    fn cos(x: f64) -> f64 { x.cos() }     fn tan(x: f64) -> f64 { x.tan() }
-    fn asin(x: f64) -> f64 { x.asin() }  fn acos(x: f64) -> f64 { x.acos() }   fn atan(x: f64) -> f64 { x.atan() }
-    fn atan2(y: f64, x: f64) -> f64 { y.atan2(x) }
-    fn trunc(x: f64) -> f64 { x.trunc() }
+    fn sin(x: f64) -> f64 {
+        x.sin()
+    }
+    fn cos(x: f64) -> f64 {
+        x.cos()
+    }
+    fn tan(x: f64) -> f64 {
+        x.tan()
+    }
+    fn asin(x: f64) -> f64 {
+        x.asin()
+    }
+    fn acos(x: f64) -> f64 {
+        x.acos()
+    }
+    fn atan(x: f64) -> f64 {
+        x.atan()
+    }
+    fn atan2(y: f64, x: f64) -> f64 {
+        y.atan2(x)
+    }
+    fn trunc(x: f64) -> f64 {
+        x.trunc()
+    }
 }
 
 impl<'a> SunPositionTimeRangeIterator<'a> {
@@ -144,7 +175,8 @@ impl<'a> SunPositionTimeRangeIterator<'a> {
     }
     pub fn get_sun_position(&self, step_coef: f64) -> SunPosition {
         let time = self.current_time;
-        let sol_pos = solar_position::<StdFloatOps>(time, self.centroid.lat, self.centroid.lon).unwrap();
+        let sol_pos =
+            solar_position::<StdFloatOps>(time, self.centroid.lat, self.centroid.lon).unwrap();
         let altitude = (90. - sol_pos.zenith_angle).to_radians();
         let azimuth = sol_pos.azimuth.to_radians();
         let roll = (PI / 2.) + altitude;

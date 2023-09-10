@@ -7,7 +7,7 @@ use super::illumination::{
 use super::radiation_components::get_irradiance;
 use super::radiation_components::VoxelIrradiance;
 use super::sun_position::get_sun_positions;
-use crate::common::{Centroid, Horizon, Linke, TimeRange};
+use crate::common::{Centroid, Horizon, Linke, TimeRange, TerrainDem};
 use crate::grid::voxel::Voxel;
 use crate::grid::VoxelGrid;
 
@@ -18,8 +18,9 @@ pub fn calculate_solar_radiation(
     centroid: &Centroid,
     horizon: &Horizon,
     linke_turbidity_factor: &Linke,
+    terrain_dem: &Option<TerrainDem>
 ) {
-    let sun_positions = get_sun_positions(time_range, step_mins, centroid, horizon);
+    let sun_positions = get_sun_positions(time_range, step_mins, centroid, horizon, terrain_dem);
     info!("Visible sun epochs: {}", sun_positions.len());
 
     sun_positions.par_iter().for_each(|sun_position| {

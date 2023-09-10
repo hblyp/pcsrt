@@ -117,6 +117,7 @@ pub fn run(options: RunOptions) -> Result<(), Box<dyn Error>> {
             &options.centroid,
             &options.horizon,
             &options.linke_turbidity_factor,
+            &options.terrain_dem
         );
 
         info!(

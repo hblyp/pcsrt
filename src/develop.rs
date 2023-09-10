@@ -14,7 +14,7 @@ pub fn develop_playground() -> Result<(), Box<dyn Error>> {
 
     let azimuth_deg = 80.;
 
-    let quartal: isize = if azimuth_deg >= 270. {
+    let quadrant: isize = if azimuth_deg >= 270. {
         4
     } else if azimuth_deg >= 180. {
         3
@@ -24,7 +24,7 @@ pub fn develop_playground() -> Result<(), Box<dyn Error>> {
         1
     };
 
-    let azimuth = (-azimuth_deg / 180.) * PI;
+    let azimuth: f64 = (-azimuth_deg / 180.) * PI;
 
     let raster = Raster::new("/home/filip/projects/data/pcsrt/dem.tif", "r")?;
 
@@ -41,7 +41,7 @@ pub fn develop_playground() -> Result<(), Box<dyn Error>> {
     let cell_y = cell_lat / raster.configs.resolution_y;
 
     let y = col as f64 + cell_y;
-    let x = row as f64 + cell_y;
+    let x = row as f64 + cell_x;
 
     let a = f64::tan(azimuth);
     let c = y - a * x;
@@ -55,7 +55,7 @@ pub fn develop_playground() -> Result<(), Box<dyn Error>> {
     let a_lon = raster.get_x_from_column(col);
     let a_lat = raster.get_y_from_row(row);
 
-    let col_range = if quartal > 2 {
+    let col_range = if quadrant > 2 {
         0..col
     } else {
         col..raster.configs.columns as isize
@@ -107,7 +107,7 @@ pub fn develop_playground() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    let row_range = if quartal == 1 || quartal == 4 {
+    let row_range = if quadrant == 1 || quadrant == 4 {
         0..row
     } else {
         row..raster.configs.rows as isize
@@ -176,6 +176,7 @@ pub fn develop_playground() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
 struct Angle {
     a_lat: f64,
