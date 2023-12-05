@@ -38,7 +38,7 @@ pub fn get_diffuse_irradiance(
         * solar_distance_variation_correction
         * diffuse_transmission_function
         * diffuse_anglular_function;
-    let slope: f64 = normal_vector.angle(&Vector3::from([normal_vector[0], normal_vector[1], 1.])); // TODO
+    let slope: f64 = normal_vector.angle(&Vector3::from([0., 0., 1.]));
 
     if let Some(beam_radiation) = beam_component {
         let modulating_function_kb = beam_radiation / SOLAR_CONSTANT
